@@ -372,11 +372,17 @@ input,select,textarea,button{font-family:inherit}
  .prices-grid{grid-template-columns:1fr 1fr;gap:8px}
  .pc{padding:12px 11px}
 
- /* Header search bigger */
- .search-input{font-size:16px !important;padding:13px 16px 13px 46px !important}
+ /* Header mobile : logo plus petit, nom plus petit */
+ .header-logo{height:28px !important}
+ .header-sitename{font-size:17px !important}
+ .header-center{gap:8px !important}
+ .header-sub{font-size:10px !important}
+ .header-retour span{display:none}
+ .header-admin span.admin-txt{display:none}
 
  /* Brand grid 2 col on phone */
- .brand-grid{grid-template-columns:1fr 1fr !important;gap:12px !important}
+ .brand-grid{flex-direction:column !important;align-items:center !important}
+ .brand-grid > div{width:100% !important;max-width:340px !important}
  .brand-tile-logo{width:64px !important;height:42px !important;max-width:64px !important;max-height:40px !important}
  .brand-tile-zone{padding:18px 12px 14px !important}
 
@@ -690,39 +696,49 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
        position:"sticky",top:0,zIndex:100}}>
        <div style={{maxWidth:"100%",margin:"0 auto",padding:"0 40px"}}>
          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
-           height:"76px",gap:"16px"}}>
-           <div style={{display:"flex",alignItems:"center",gap:"10px",flex:1,minWidth:0}}>
+           height:"82px",gap:"16px"}}>
+
+           {/* Gauche : bouton retour si page modèles */}
+           <div style={{width:"120px",flexShrink:0}}>
              {screen==="models"&&(
                <button onClick={goBack} style={{background:"rgba(255,255,255,.18)",border:"1px solid rgba(255,255,255,.25)",
-                 borderRadius:"10px",color:"#fff",padding:"10px 12px",cursor:"pointer",display:"flex",
-                 flexShrink:0,transition:"background .15s"}}
+                 borderRadius:"10px",color:"#fff",padding:"10px 14px",cursor:"pointer",display:"flex",
+                 alignItems:"center",gap:"8px",fontSize:"14px",fontWeight:600,
+                 transition:"background .15s"}}
                  onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.28)"}
                  onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,.18)"}>
-                 <IBack/>
+                 <IBack/> Retour
                </button>
              )}
-             <div style={{width:"48px",height:"48px",background:"rgba(255,255,255,.2)",borderRadius:"14px",
-               display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px",flexShrink:0}}>
-               🛠️
+           </div>
+
+           {/* Centre : logo Care + nom du site */}
+           <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"2px"}}>
+             <div className="header-center" style={{display:"flex",alignItems:"center",gap:"12px"}}>
+               <img className="header-logo" src="/care-logo.png" alt="Care" style={{height:"42px",objectFit:"contain",
+                 filter:"brightness(0) invert(1)",flexShrink:0}}
+                 onError={e=>e.target.style.display="none"}/>
+               <div className="header-sitename" style={{fontWeight:900,fontSize:"26px",color:"#fff",letterSpacing:"-.5px",
+                 textAlign:"center",whiteSpace:"nowrap"}}>{siteName}</div>
              </div>
-             <div style={{minWidth:0}}>
-               <div style={{fontWeight:900,fontSize:"22px",color:"#fff",letterSpacing:"-.5px",
-                 overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{siteName}</div>
-               <div style={{fontSize:"12px",color:"rgba(255,255,255,.65)",fontWeight:500}}>
-                 {screen==="models"&&brand
-                   ? <><span style={{opacity:.6}}>Marques</span>{" › "}<span>{brand.name}</span></>
-                   : "Tarifs de réparation smartphone"}
-               </div>
+             <div className="header-sub" style={{fontSize:"12px",color:"rgba(255,255,255,.65)",fontWeight:500,textAlign:"center"}}>
+               {screen==="models"&&brand
+                 ? <><span style={{opacity:.6}}>Marques</span>{" › "}<span style={{fontWeight:700}}>{brand.name}</span></>
+                 : "Tarifs de réparation smartphone"}
              </div>
            </div>
-           <button onClick={onAdminClick}
-             style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.25)",
-               borderRadius:"12px",color:"#fff",padding:"12px 22px",fontSize:"14px",fontWeight:700,
-               display:"flex",alignItems:"center",gap:"8px",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
-             <ILock/> <span style={{display:"none"}} className="admin-label">Admin</span>
-             <span>Admin</span>
-           </button>
+
+           {/* Droite : bouton Admin */}
+           <div style={{width:"120px",flexShrink:0,display:"flex",justifyContent:"flex-end"}}>
+             <button onClick={onAdminClick}
+               style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.25)",
+                 borderRadius:"12px",color:"#fff",padding:"12px 22px",fontSize:"14px",fontWeight:700,
+                 display:"flex",alignItems:"center",gap:"8px",cursor:"pointer",whiteSpace:"nowrap"}}>
+               <ILock/> Admin
+             </button>
+           </div>
          </div>
+
          {/* Barre de recherche */}
          <div style={{paddingBottom:"20px"}}>
            <div style={{position:"relative"}}>
@@ -732,7 +748,7 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
                placeholder="Rechercher un modèle parmi toutes les marques…"
                style={{width:"100%",background:"rgba(255,255,255,.15)",
                  border:"1.5px solid rgba(255,255,255,.25)",borderRadius:"14px",
-                 padding:"16px 20px 16px 52px",fontSize:"16px",color:"#fff",
+                 padding:"16px 20px 16px 54px",fontSize:"16px",color:"#fff",
                  outline:"none",boxSizing:"border-box"}}
                onFocus={e=>e.target.style.background="rgba(255,255,255,.22)"}
                onBlur={e=>e.target.style.background="rgba(255,255,255,.15)"}
@@ -777,45 +793,50 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
 
        {/* Grille marques */}
        {!search.trim()&&screen==="brands"&&(
-         <div className="aI">
-           <h2 style={{fontSize:"28px",fontWeight:800,color:"var(--g800)",marginBottom:"8px"}}>
+         <div className="aI" style={{textAlign:"center"}}>
+           <h2 style={{fontSize:"34px",fontWeight:800,color:"var(--g800)",marginBottom:"10px"}}>
              Choisissez votre marque
            </h2>
-           <p style={{fontSize:"15px",color:"var(--g400)",marginBottom:"32px"}}>
+           <p style={{fontSize:"17px",color:"var(--g400)",marginBottom:"40px"}}>
              Cliquez sur une marque pour explorer ses modèles et tarifs.
            </p>
-           <div className="brand-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:"24px"}}>
+           <div className="brand-grid" style={{
+             display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"28px"
+           }}>
              {brands.map((b,i)=>(
-               <div key={b.id} className="bt aU" style={{animationDelay:`${i*0.06}s`}}
+               <div key={b.id} className="bt aU" style={{
+                   animationDelay:`${i*0.06}s`,
+                   width:"300px",flexShrink:0
+                 }}
                  onClick={()=>openBrand(b.id)}
                  onMouseEnter={e=>e.currentTarget.style.borderColor=b.accent||"var(--bl)"}
                  onMouseLeave={e=>e.currentTarget.style.borderColor="transparent"}>
-                 <div className="brand-tile-zone" style={{background:b.bgGrad,padding:"36px 24px 28px",
+                 <div className="brand-tile-zone" style={{background:b.bgGrad,padding:"40px 24px 32px",
                    display:"flex",flexDirection:"column",alignItems:"center",gap:"12px"}}>
-                   <div style={{width:"120px",height:"76px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                   <div style={{width:"130px",height:"84px",display:"flex",alignItems:"center",justifyContent:"center"}}>
                      <img src={b.logo} alt={b.name}
                        className="brand-tile-logo"
-                       style={{maxWidth:"120px",maxHeight:"72px",objectFit:"contain",
-                         filter:"drop-shadow(0 2px 8px rgba(0,0,0,.15))"}}
+                       style={{maxWidth:"130px",maxHeight:"80px",objectFit:"contain",
+                         filter:"drop-shadow(0 2px 10px rgba(0,0,0,.15))"}}
                        onError={e=>{e.target.style.display="none";e.target.nextSibling.style.display="flex";}}
                      />
-                     <div style={{display:"none",width:"64px",height:"64px",background:b.accent||"var(--bl)",
-                       borderRadius:"16px",alignItems:"center",justifyContent:"center",
-                       fontSize:"28px",fontWeight:900,color:"#fff"}}>
+                     <div style={{display:"none",width:"72px",height:"72px",background:b.accent||"var(--bl)",
+                       borderRadius:"18px",alignItems:"center",justifyContent:"center",
+                       fontSize:"32px",fontWeight:900,color:"#fff"}}>
                        {b.name[0]}
                      </div>
                    </div>
                  </div>
-                 <div style={{background:"#fff",padding:"18px 22px 20px",
-                   borderTop:`3px solid ${b.accent||"var(--bl)"}`}}>
-                   <div style={{fontWeight:800,fontSize:"19px",color:"var(--g900)",marginBottom:"6px"}}>
+                 <div style={{background:"#fff",padding:"20px 24px 22px",
+                   borderTop:`4px solid ${b.accent||"var(--bl)"}`,textAlign:"left"}}>
+                   <div style={{fontWeight:800,fontSize:"21px",color:"var(--g900)",marginBottom:"6px"}}>
                      {b.name}
                    </div>
                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                     <span style={{fontSize:"13px",color:"var(--g400)"}}>
+                     <span style={{fontSize:"14px",color:"var(--g400)"}}>
                        {b.models.length} modèle{b.models.length>1?"s":""}
                      </span>
-                     <span style={{fontSize:"13px",fontWeight:800,color:b.accent||"var(--bl)"}}>
+                     <span style={{fontSize:"14px",fontWeight:800,color:b.accent||"var(--bl)"}}>
                        Voir →
                      </span>
                    </div>
@@ -829,23 +850,23 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
        {/* Liste modèles d'une marque */}
        {!search.trim()&&screen==="models"&&brand&&(
          <div className="aI">
-           <div style={{display:"flex",alignItems:"center",gap:"16px",marginBottom:"24px",
-             background:"#fff",borderRadius:"var(--r16)",padding:"18px 20px",
-             boxShadow:"var(--sh2)",borderLeft:`5px solid ${brand.accent||"var(--bl)"}`,flexWrap:"wrap"}}>
-             <div style={{width:"72px",height:"50px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+           <div style={{display:"flex",alignItems:"center",gap:"20px",marginBottom:"28px",
+             background:"#fff",borderRadius:"var(--r16)",padding:"24px 28px",
+             boxShadow:"var(--sh2)",borderLeft:`6px solid ${brand.accent||"var(--bl)"}`,flexWrap:"wrap"}}>
+             <div style={{width:"88px",height:"60px",display:"flex",alignItems:"center",justifyContent:"center"}}>
                <img src={brand.logo} alt={brand.name}
-                 style={{maxWidth:"72px",maxHeight:"48px",objectFit:"contain"}}
+                 style={{maxWidth:"88px",maxHeight:"58px",objectFit:"contain"}}
                  onError={e=>e.target.style.display="none"}/>
              </div>
              <div style={{flex:1,minWidth:"140px"}}>
-               <h2 style={{fontWeight:800,fontSize:"22px",color:"var(--g900)"}}>{brand.name}</h2>
-               <p style={{color:"var(--g400)",fontSize:"13px",marginTop:"2px"}}>
+               <h2 style={{fontWeight:800,fontSize:"26px",color:"var(--g900)"}}>{brand.name}</h2>
+               <p style={{color:"var(--g400)",fontSize:"15px",marginTop:"4px"}}>
                  {brand.models.length} modèle{brand.models.length>1?"s":" disponible"} — cliquez pour afficher les tarifs
                </p>
              </div>
-             <button onClick={goBack} style={{background:"var(--g100)",border:"none",borderRadius:"10px",
-               padding:"10px 16px",fontSize:"13px",fontWeight:700,color:"var(--g600)",
-               cursor:"pointer",display:"flex",alignItems:"center",gap:"6px"}}>
+             <button onClick={goBack} style={{background:"var(--g100)",border:"none",borderRadius:"12px",
+               padding:"12px 20px",fontSize:"14px",fontWeight:700,color:"var(--g600)",
+               cursor:"pointer",display:"flex",alignItems:"center",gap:"8px"}}>
                <IBack/> Marques
              </button>
            </div>
@@ -1275,12 +1296,13 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
 
      {/* Sidebar desktop */}
      <aside className="admin-aside">
-       <div style={{padding:"20px 16px 14px",borderBottom:"1px solid var(--g100)"}}>
-         <div style={{display:"flex",alignItems:"center",gap:"9px"}}>
-           <div style={{fontSize:"24px"}}>🛠️</div>
+       <div style={{padding:"20px 16px 16px",borderBottom:"1px solid var(--g100)"}}>
+         <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"8px",textAlign:"center"}}>
+           <img src="/care-logo.png" alt="Care" style={{height:"36px",objectFit:"contain"}}
+             onError={e=>e.target.style.display="none"}/>
            <div>
              <div style={{fontWeight:800,fontSize:"16px",color:"var(--bl)"}}>{siteName}</div>
-             <div style={{fontSize:"12px",color:"var(--g400)"}}>Dashboard Admin</div>
+             <div style={{fontSize:"11px",color:"var(--g400)"}}>Dashboard Admin</div>
            </div>
          </div>
        </div>
