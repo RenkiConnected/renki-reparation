@@ -367,47 +367,65 @@ input,select,textarea,button{font-family:inherit}
 @media(max-width:600px){
  :root{--header-h:auto}
 
- /* Public view mobile */
- .public-main{padding:16px 12px 90px}
- .prices-grid{grid-template-columns:1fr 1fr;gap:8px}
- .pc{padding:12px 11px}
-
- /* Header mobile : logo plus petit, nom plus petit */
- .header-logo{height:28px !important}
- .header-sitename{font-size:17px !important}
- .header-center{gap:8px !important}
+ /* ── Header mobile compact et CENTRÉ ── */
+ .header-wrap{padding:0 12px !important}
+ .header-row{height:64px !important}
+ .header-left{width:60px !important}
+ .header-right{width:60px !important}
+ .header-logo{height:26px !important}
+ .header-sitename{font-size:16px !important;white-space:nowrap !important}
+ .header-center{gap:6px !important}
  .header-sub{font-size:10px !important}
- .header-retour span{display:none}
- .header-admin span.admin-txt{display:none}
+ .header-retour-text{display:none !important}
+ .header-admin-text{display:none !important}
+ .header-btn{padding:8px 10px !important;font-size:12px !important;min-width:0 !important}
 
- /* Brand grid 2 col on phone */
- .brand-grid{flex-direction:column !important;align-items:center !important}
- .brand-grid > div{width:100% !important;max-width:340px !important}
- .brand-tile-logo{width:64px !important;height:42px !important;max-width:64px !important;max-height:40px !important}
- .brand-tile-zone{padding:18px 12px 14px !important}
+ /* ── Barre recherche mobile ── */
+ .search-input{font-size:15px !important;padding:12px 14px 12px 44px !important}
+ .search-wrap{padding-bottom:12px !important}
 
- /* Model rows bigger touch targets */
- .mr-header{padding:16px 14px !important;min-height:60px}
- .mr-name{font-size:15px !important}
- .mr-chevron{width:36px !important;height:36px !important}
+ /* ── Main mobile ── */
+ .public-main{padding:16px 12px 90px}
 
- /* Admin — hide sidebar, show bottom nav */
+ /* ── Titre section ── */
+ .section-title{font-size:22px !important;margin-bottom:6px !important}
+ .section-sub{font-size:13px !important;margin-bottom:20px !important}
+
+ /* ── Tuiles marques : 2 PAR RANGÉE ── */
+ .brand-grid{
+   display:grid !important;
+   grid-template-columns:1fr 1fr !important;
+   gap:12px !important;
+   justify-items:stretch !important;
+   width:100% !important;
+ }
+ .brand-tile{width:auto !important;flex-shrink:unset !important}
+ .brand-tile-zone{padding:16px 8px 12px !important}
+ .brand-tile-logo{max-width:56px !important;max-height:36px !important}
+ .brand-tile-fallback{width:48px !important;height:48px !important;font-size:20px !important}
+ .brand-tile-name{font-size:15px !important;margin-bottom:3px !important}
+ .brand-tile-info{font-size:11px !important}
+
+ /* ── Chips prix ── */
+ .prices-grid{grid-template-columns:1fr 1fr;gap:8px}
+ .pc{padding:12px 10px}
+
+ /* ── Model rows ── */
+ .mr-header{padding:14px 12px !important;min-height:56px}
+ .mr-name{font-size:14px !important}
+ .mr-chevron{width:34px !important;height:34px !important}
+
+ /* ── Admin ── */
  .admin-aside{display:none}
  .admin-bottomnav{display:block}
  .admin-main{padding-bottom:72px}
-
- /* Brands tab stacked on mobile */
  .brands-layout{flex-direction:column}
  .brands-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--g200);max-height:52px;overflow:hidden;flex-shrink:0}
  .brands-sidebar.open{max-height:300px;overflow-y:auto}
  .brands-content{padding:12px}
-
- /* Admin model rows */
  .admin-model-row{flex-direction:column !important;gap:8px !important}
  .admin-model-prices{flex-wrap:wrap}
  .admin-model-actions{flex-direction:row !important;justify-content:flex-end}
-
- /* Requests card */
  .req-card-body{flex-direction:column !important}
  .req-card-actions{flex-direction:row !important;justify-content:flex-end;flex-wrap:wrap}
 }
@@ -601,10 +619,10 @@ function PricesGrid({model,brand,repairTypes,onSuggest}){
          return(
            <div key={rt.id} className="pc">
              <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"9px"}}>
-               <span style={{fontSize:"24px",lineHeight:1}}>{rt.icon}</span>
-               <span style={{fontSize:"12px",fontWeight:700,color:"var(--g500)",lineHeight:1.2}}>{rt.label}</span>
+               <span style={{fontSize:"28px",lineHeight:1}}>{rt.icon}</span>
+               <span style={{fontSize:"13px",fontWeight:700,color:"var(--g500)",lineHeight:1.2}}>{rt.label}</span>
              </div>
-             <div style={{fontSize:"30px",fontWeight:900,letterSpacing:"-1.5px",lineHeight:1,
+             <div style={{fontSize:"34px",fontWeight:900,letterSpacing:"-1.5px",lineHeight:1,
                color:price!=null?"var(--bl)":"var(--g300)",fontFamily:"'DM Mono',monospace"}}>
                {price!=null?`${price}€`:"—"}
              </div>
@@ -693,54 +711,63 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
 
      {/* ── HEADER ── */}
      <header style={{background:"var(--bl)",boxShadow:"0 2px 28px rgba(0,91,255,.38)",
-       position:"sticky",top:0,zIndex:100}}>
-       <div style={{maxWidth:"100%",margin:"0 auto",padding:"0 40px"}}>
-         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
-           height:"82px",gap:"16px"}}>
+       position:"sticky",top:0,zIndex:100,overflow:"hidden"}}>
+       <div className="header-wrap" style={{maxWidth:"100%",margin:"0 auto",padding:"0 40px",boxSizing:"border-box"}}>
 
-           {/* Gauche : bouton retour si page modèles */}
-           <div style={{width:"120px",flexShrink:0}}>
+         {/* Ligne principale */}
+         <div className="header-row" style={{display:"flex",alignItems:"center",
+           justifyContent:"space-between",height:"88px",gap:"8px"}}>
+
+           {/* Gauche */}
+           <div className="header-left" style={{width:"130px",flexShrink:0,minWidth:0}}>
              {screen==="models"&&(
-               <button onClick={goBack} style={{background:"rgba(255,255,255,.18)",border:"1px solid rgba(255,255,255,.25)",
-                 borderRadius:"10px",color:"#fff",padding:"10px 14px",cursor:"pointer",display:"flex",
-                 alignItems:"center",gap:"8px",fontSize:"14px",fontWeight:600,
-                 transition:"background .15s"}}
-                 onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.28)"}
-                 onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,.18)"}>
-                 <IBack/> Retour
+               <button onClick={goBack} style={{background:"rgba(255,255,255,.18)",
+                 border:"1px solid rgba(255,255,255,.25)",borderRadius:"10px",color:"#fff",
+                 padding:"10px 14px",cursor:"pointer",display:"flex",alignItems:"center",
+                 gap:"8px",fontSize:"14px",fontWeight:600,whiteSpace:"nowrap",
+                 maxWidth:"100%",overflow:"hidden"}}>
+                 <IBack/>
+                 <span className="header-retour-text">Retour</span>
                </button>
              )}
            </div>
 
-           {/* Centre : logo Care + nom du site */}
-           <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"2px"}}>
-             <div className="header-center" style={{display:"flex",alignItems:"center",gap:"12px"}}>
-               <img className="header-logo" src="/care-logo.png" alt="Care" style={{height:"42px",objectFit:"contain",
-                 filter:"brightness(0) invert(1)",flexShrink:0}}
+           {/* Centre */}
+           <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",
+             gap:"3px",minWidth:0,overflow:"hidden"}}>
+             <div className="header-center" style={{display:"flex",alignItems:"center",
+               gap:"14px",maxWidth:"100%"}}>
+               <img className="header-logo" src="/care-logo.png" alt="Care"
+                 style={{height:"52px",objectFit:"contain",filter:"brightness(0) invert(1)",flexShrink:0}}
                  onError={e=>e.target.style.display="none"}/>
-               <div className="header-sitename" style={{fontWeight:900,fontSize:"26px",color:"#fff",letterSpacing:"-.5px",
-                 textAlign:"center",whiteSpace:"nowrap"}}>{siteName}</div>
+               <div className="header-sitename"
+                 style={{fontWeight:900,fontSize:"32px",color:"#fff",letterSpacing:"-.5px",
+                   whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                 {siteName}
+               </div>
              </div>
-             <div className="header-sub" style={{fontSize:"12px",color:"rgba(255,255,255,.65)",fontWeight:500,textAlign:"center"}}>
+             <div className="header-sub"
+               style={{fontSize:"13px",color:"rgba(255,255,255,.7)",fontWeight:500,textAlign:"center",whiteSpace:"nowrap"}}>
                {screen==="models"&&brand
-                 ? <><span style={{opacity:.6}}>Marques</span>{" › "}<span style={{fontWeight:700}}>{brand.name}</span></>
+                 ? <><span style={{opacity:.7}}>Marques</span>{" › "}<span style={{fontWeight:700}}>{brand.name}</span></>
                  : "Tarifs de réparation smartphone"}
              </div>
            </div>
 
-           {/* Droite : bouton Admin */}
-           <div style={{width:"120px",flexShrink:0,display:"flex",justifyContent:"flex-end"}}>
-             <button onClick={onAdminClick}
+           {/* Droite */}
+           <div className="header-right" style={{width:"130px",flexShrink:0,display:"flex",justifyContent:"flex-end",minWidth:0}}>
+             <button className="header-btn" onClick={onAdminClick}
                style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.25)",
                  borderRadius:"12px",color:"#fff",padding:"12px 22px",fontSize:"14px",fontWeight:700,
                  display:"flex",alignItems:"center",gap:"8px",cursor:"pointer",whiteSpace:"nowrap"}}>
-               <ILock/> Admin
+               <ILock/>
+               <span className="header-admin-text">Admin</span>
              </button>
            </div>
          </div>
 
          {/* Barre de recherche */}
-         <div style={{paddingBottom:"20px"}}>
+         <div className="search-wrap" style={{paddingBottom:"20px"}}>
            <div style={{position:"relative"}}>
              <span style={{position:"absolute",left:"18px",top:"50%",transform:"translateY(-50%)",
                color:"rgba(255,255,255,.5)",pointerEvents:"none",display:"flex"}}><ISearch s={20}/></span>
@@ -794,20 +821,18 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
        {/* Grille marques */}
        {!search.trim()&&screen==="brands"&&(
          <div className="aI" style={{textAlign:"center"}}>
-           <h2 style={{fontSize:"34px",fontWeight:800,color:"var(--g800)",marginBottom:"10px"}}>
+           <h2 className="section-title" style={{fontSize:"36px",fontWeight:800,color:"var(--g800)",marginBottom:"10px"}}>
              Choisissez votre marque
            </h2>
-           <p style={{fontSize:"17px",color:"var(--g400)",marginBottom:"40px"}}>
+           <p className="section-sub" style={{fontSize:"17px",color:"var(--g400)",marginBottom:"40px"}}>
              Cliquez sur une marque pour explorer ses modèles et tarifs.
            </p>
            <div className="brand-grid" style={{
-             display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"28px"
+             display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"28px",boxSizing:"border-box"
            }}>
              {brands.map((b,i)=>(
-               <div key={b.id} className="bt aU" style={{
-                   animationDelay:`${i*0.06}s`,
-                   width:"300px",flexShrink:0
-                 }}
+               <div key={b.id} className="bt aU brand-tile"
+                 style={{animationDelay:`${i*0.06}s`,width:"300px",flexShrink:0,minWidth:0}}
                  onClick={()=>openBrand(b.id)}
                  onMouseEnter={e=>e.currentTarget.style.borderColor=b.accent||"var(--bl)"}
                  onMouseLeave={e=>e.currentTarget.style.borderColor="transparent"}>
@@ -820,7 +845,7 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
                          filter:"drop-shadow(0 2px 10px rgba(0,0,0,.15))"}}
                        onError={e=>{e.target.style.display="none";e.target.nextSibling.style.display="flex";}}
                      />
-                     <div style={{display:"none",width:"72px",height:"72px",background:b.accent||"var(--bl)",
+                     <div className="brand-tile-fallback" style={{display:"none",width:"72px",height:"72px",background:b.accent||"var(--bl)",
                        borderRadius:"18px",alignItems:"center",justifyContent:"center",
                        fontSize:"32px",fontWeight:900,color:"#fff"}}>
                        {b.name[0]}
@@ -829,10 +854,10 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
                  </div>
                  <div style={{background:"#fff",padding:"20px 24px 22px",
                    borderTop:`4px solid ${b.accent||"var(--bl)"}`,textAlign:"left"}}>
-                   <div style={{fontWeight:800,fontSize:"21px",color:"var(--g900)",marginBottom:"6px"}}>
+                   <div className="brand-tile-name" style={{fontWeight:800,fontSize:"21px",color:"var(--g900)",marginBottom:"6px"}}>
                      {b.name}
                    </div>
-                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                   <div className="brand-tile-info" style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                      <span style={{fontSize:"14px",color:"var(--g400)"}}>
                        {b.models.length} modèle{b.models.length>1?"s":""}
                      </span>
@@ -970,9 +995,9 @@ function AdminBrandsTab({brands,setBrands}){
              :<span style={{fontSize:"16px",fontWeight:800,color:"var(--bl)"}}>{b.name[0]}</span>}
          </div>
          <div style={{flex:1,minWidth:0}}>
-           <div style={{fontWeight:700,fontSize:"14px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
+           <div style={{fontWeight:700,fontSize:"15px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
              color:activeBrandId===b.id?"var(--bl)":"var(--g800)"}}>{b.name}</div>
-           <div style={{fontSize:"11px",color:"var(--g400)"}}>{b.models.length} modèles</div>
+           <div style={{fontSize:"13px",color:"var(--g400)"}}>{b.models.length} modèles</div>
          </div>
          <div style={{display:"flex",gap:"2px",flexShrink:0}}>
            <button onClick={e=>{e.stopPropagation();setForm({name:b.name,logo:b.logo||"",accent:b.accent||"#005BFF"});setModal({type:"editBrand",data:b});}}
@@ -1017,8 +1042,8 @@ function AdminBrandsTab({brands,setBrands}){
              <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
                {brand.logo&&<img src={brand.logo} alt="" style={{height:"30px",objectFit:"contain"}} onError={e=>e.target.style.display="none"}/>}
                <div>
-                 <h2 style={{fontWeight:800,fontSize:"18px"}}>{brand.name}</h2>
-                 <p style={{color:"var(--g400)",fontSize:"12px"}}>{brand.models.length} modèles</p>
+                 <h2 style={{fontWeight:800,fontSize:"22px"}}>{brand.name}</h2>
+                 <p style={{color:"var(--g400)",fontSize:"14px"}}>{brand.models.length} modèles</p>
                </div>
              </div>
              <Btn onClick={()=>{setForm({name:""});setModal({type:"addModel"})}}><IPlus/> Ajouter un modèle</Btn>
@@ -1038,11 +1063,11 @@ function AdminBrandsTab({brands,setBrands}){
                        cursor:idx===sorted.length-1?"default":"pointer",opacity:idx===sorted.length-1?.3:1,display:"flex"}}><IArrowD/></button>
                  </div>
                  <div style={{flex:1,minWidth:0}}>
-                   <div style={{fontWeight:700,fontSize:"14px",marginBottom:"8px"}}>{m.name}</div>
+                   <div style={{fontWeight:700,fontSize:"16px",marginBottom:"10px"}}>{m.name}</div>
                    <div className="admin-model-prices" style={{display:"flex",flexWrap:"wrap",gap:"5px"}}>
                      {RT_KEYS.map(k=>(
-                       <span key={k} style={{fontSize:"11px",background:"var(--g100)",borderRadius:"6px",
-                         padding:"3px 8px",color:"var(--g600)",fontFamily:"'DM Mono',monospace"}}>
+                       <span key={k} style={{fontSize:"13px",background:"var(--g100)",borderRadius:"6px",
+                         padding:"4px 10px",color:"var(--g600)",fontFamily:"'DM Mono',monospace"}}>
                          {RT_ICONS[k]} {m.prices[k]!=null?`${m.prices[k]}€`:"—"}
                        </span>
                      ))}
@@ -1178,7 +1203,7 @@ function AdminRequestsTab({requests,setRequests,setBrands}){
  return(
    <div style={{padding:"24px",overflowY:"auto",flex:1}}>
      <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"24px"}}>
-       <h2 style={{fontWeight:800,fontSize:"20px"}}>Demandes de modification</h2>
+       <h2 style={{fontWeight:800,fontSize:"24px"}}>Demandes de modification</h2>
        {pending.length>0&&<span className="tag to">{pending.length} en attente</span>}
      </div>
 
@@ -1231,7 +1256,7 @@ function AdminSettingsTab({siteName,setSiteName,repairTypes,setRepairTypes}){
 
  return(
    <div style={{padding:"28px",overflowY:"auto",flex:1}}>
-     <h2 style={{fontWeight:800,fontSize:"20px",marginBottom:"24px"}}>Paramètres</h2>
+     <h2 style={{fontWeight:800,fontSize:"24px",marginBottom:"24px"}}>Paramètres</h2>
      <div style={{maxWidth:"560px"}}>
        <div style={{background:"#fff",borderRadius:"var(--r16)",padding:"20px 24px",boxShadow:"var(--sh1)",marginBottom:"16px"}}>
          <h3 style={{fontWeight:700,fontSize:"14px",marginBottom:"16px",color:"var(--g700)"}}>🏷️ Nom du site</h3>
