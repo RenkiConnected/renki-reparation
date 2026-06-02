@@ -109,20 +109,36 @@ const DEFAULT_BRANDS = [
      {id:uid(),name:"Galaxy S20+",        order:20, prices:pr(259,169,65,49,109,65,139)},
      {id:uid(),name:"Galaxy S20",         order:21, prices:pr(219,149,59,45,89,59,119)},
      {id:uid(),name:"Galaxy S20 FE",      order:22, prices:pr(179,129,55,45,79,55,109)},
-     {id:uid(),name:"Galaxy Z Fold 6",    order:23, prices:pr(699,null,149,99,249,129,269)},
-     {id:uid(),name:"Galaxy Z Fold 5",    order:24, prices:pr(649,null,139,99,229,119,249)},
-     {id:uid(),name:"Galaxy Z Fold 4",    order:25, prices:pr(599,null,129,89,209,109,229)},
-     {id:uid(),name:"Galaxy Z Fold 3",    order:26, prices:pr(549,null,119,89,189,99,209)},
-     {id:uid(),name:"Galaxy Z Flip 6",    order:27, prices:pr(389,null,119,79,179,99,189)},
-     {id:uid(),name:"Galaxy Z Flip 5",    order:28, prices:pr(359,null,109,75,159,89,169)},
-     {id:uid(),name:"Galaxy Z Flip 4",    order:29, prices:pr(319,null,99,69,139,79,149)},
-     {id:uid(),name:"Galaxy Z Flip 3",    order:30, prices:pr(289,null,89,65,119,75,139)},
-     {id:uid(),name:"Galaxy A55",         order:31, prices:pr(199,139,59,49,89,59,109)},
-     {id:uid(),name:"Galaxy A54",         order:32, prices:pr(179,129,55,45,79,55,99)},
-     {id:uid(),name:"Galaxy A35",         order:33, prices:pr(159,109,49,39,69,49,89)},
-     {id:uid(),name:"Galaxy A34",         order:34, prices:pr(149,99,45,39,65,45,85)},
-     {id:uid(),name:"Galaxy A15",         order:35, prices:pr(109,79,39,35,49,39,69)},
-     {id:uid(),name:"Galaxy A14",         order:36, prices:pr(99,69,35,29,45,35,65)},
+     {id:uid(),name:"Galaxy Z Fold 7",    order:23, prices:pr(749,null,159,109,269,139,289)},
+     {id:uid(),name:"Galaxy Z Fold 6",    order:24, prices:pr(699,null,149,99,249,129,269)},
+     {id:uid(),name:"Galaxy Z Fold 5",    order:25, prices:pr(649,null,139,99,229,119,249)},
+     {id:uid(),name:"Galaxy Z Fold 4",    order:26, prices:pr(599,null,129,89,209,109,229)},
+     {id:uid(),name:"Galaxy Z Fold 3",    order:27, prices:pr(549,null,119,89,189,99,209)},
+     {id:uid(),name:"Galaxy Z Flip 7",    order:28, prices:pr(419,null,129,85,189,105,199)},
+     {id:uid(),name:"Galaxy Z Flip 7 FE", order:29, prices:pr(329,null,109,75,159,89,169)},
+     {id:uid(),name:"Galaxy Z Flip 6",    order:30, prices:pr(389,null,119,79,179,99,189)},
+     {id:uid(),name:"Galaxy Z Flip 5",    order:31, prices:pr(359,null,109,75,159,89,169)},
+     {id:uid(),name:"Galaxy Z Flip 4",    order:32, prices:pr(319,null,99,69,139,79,149)},
+     {id:uid(),name:"Galaxy Z Flip 3",    order:33, prices:pr(289,null,89,65,119,75,139)},
+     {id:uid(),name:"Galaxy A55",         order:34, prices:pr(199,139,59,49,89,59,109)},
+     {id:uid(),name:"Galaxy A54",         order:35, prices:pr(179,129,55,45,79,55,99)},
+     {id:uid(),name:"Galaxy A53",         order:36, prices:pr(159,109,49,39,69,49,89)},
+     {id:uid(),name:"Galaxy A35",         order:37, prices:pr(159,109,49,39,69,49,89)},
+     {id:uid(),name:"Galaxy A34",         order:38, prices:pr(149,99,45,39,65,45,85)},
+     {id:uid(),name:"Galaxy A33",         order:39, prices:pr(139,95,43,37,61,43,83)},
+     {id:uid(),name:"Galaxy A25",         order:40, prices:pr(129,89,39,35,55,39,75)},
+     {id:uid(),name:"Galaxy A24",         order:41, prices:pr(119,85,37,33,51,37,71)},
+     {id:uid(),name:"Galaxy A23",         order:42, prices:pr(109,79,35,29,47,35,67)},
+     {id:uid(),name:"Galaxy A15",         order:43, prices:pr(109,79,39,35,49,39,69)},
+     {id:uid(),name:"Galaxy A14",         order:44, prices:pr(99,69,35,29,45,35,65)},
+     {id:uid(),name:"Galaxy A13",         order:45, prices:pr(89,65,33,27,41,33,61)},
+     {id:uid(),name:"Galaxy A05s",        order:46, prices:pr(85,62,30,25,39,30,57)},
+     {id:uid(),name:"Galaxy A05",         order:47, prices:pr(79,55,29,23,37,29,55)},
+     {id:uid(),name:"Galaxy A03s",        order:48, prices:pr(75,52,27,21,35,27,51)},
+     {id:uid(),name:"Galaxy A03",         order:49, prices:pr(69,49,25,19,33,25,49)},
+     {id:uid(),name:"Galaxy A10e",        order:50, prices:pr(69,49,25,19,33,25,49)},
+     {id:uid(),name:"Galaxy A10s",        order:51, prices:pr(75,52,27,21,35,27,51)},
+     {id:uid(),name:"Galaxy A10",         order:52, prices:pr(79,55,29,23,37,29,55)},
    ]
  },
  {
@@ -240,7 +256,7 @@ const DEFAULT_BRANDS = [
 ];
 
 /* ─────────────────────────────────────────
-  GLOBAL CSS
+  GLOBAL CSS — RESPONSIVE
 ───────────────────────────────────────── */
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
@@ -263,6 +279,7 @@ input,select,textarea,button{font-family:inherit}
  --sh2:0 4px 20px rgba(0,91,255,.09),0 2px 8px rgba(0,0,0,.06);
  --sh3:0 14px 48px rgba(0,91,255,.2),0 4px 16px rgba(0,0,0,.1);
  --r8:8px;--r12:12px;--r16:16px;--r20:20px;--r24:24px;
+ --header-h:66px;
 }
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -314,6 +331,80 @@ input,select,textarea,button{font-family:inherit}
 .tr{background:var(--rdBg);color:var(--rd)}
 .to{background:var(--orBg);color:var(--or)}
 .tb{background:var(--bl3);color:var(--bl2)}
+
+/* ── ADMIN RESPONSIVE ── */
+.admin-layout{display:flex;height:100vh;background:var(--g50);font-family:'Outfit',sans-serif;overflow:hidden}
+.admin-aside{width:220px;background:#fff;border-right:1px solid var(--g200);display:flex;flex-direction:column;flex-shrink:0;transition:transform .28s ease,width .28s ease}
+.admin-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* Mobile bottom nav for admin */
+.admin-bottomnav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--g200);z-index:200;padding:6px 0 max(6px,env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,.08)}
+.admin-bottomnav-inner{display:flex;justify-content:space-around;align-items:stretch}
+.admin-bottomnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:none;background:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;color:var(--g500);transition:color .15s;position:relative}
+.admin-bottomnav-btn.active{color:var(--bl)}
+.admin-bottomnav-btn .bnav-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:background .15s}
+.admin-bottomnav-btn.active .bnav-icon{background:var(--bl3)}
+.bnav-badge{position:absolute;top:2px;right:calc(50% - 20px);background:var(--bl);color:#fff;border-radius:20px;padding:0 5px;font-size:9px;font-weight:800;line-height:16px;min-width:16px;text-align:center}
+
+/* Brands tab layout responsive */
+.brands-layout{display:flex;flex:1;overflow:hidden}
+.brands-sidebar{width:230px;background:#fff;border-right:1px solid var(--g200);overflow-y:auto;flex-shrink:0}
+.brands-content{flex:1;overflow-y:auto;padding:20px 24px}
+
+/* Price chips grid */
+.prices-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
+
+/* Search page full */
+.public-main{max-width:1400px;margin:0 auto;padding:28px 24px 80px}
+
+/* RESPONSIVE BREAKPOINTS */
+@media(max-width:900px){
+ .public-main{padding:20px 16px 80px}
+ .brands-sidebar{width:190px}
+ .brands-content{padding:16px}
+}
+
+@media(max-width:600px){
+ :root{--header-h:auto}
+
+ /* Public view mobile */
+ .public-main{padding:16px 12px 90px}
+ .prices-grid{grid-template-columns:1fr 1fr;gap:8px}
+ .pc{padding:12px 11px}
+
+ /* Header search bigger */
+ .search-input{font-size:16px !important;padding:13px 16px 13px 46px !important}
+
+ /* Brand grid 2 col on phone */
+ .brand-grid{grid-template-columns:1fr 1fr !important;gap:12px !important}
+ .brand-tile-logo{width:64px !important;height:42px !important;max-width:64px !important;max-height:40px !important}
+ .brand-tile-zone{padding:18px 12px 14px !important}
+
+ /* Model rows bigger touch targets */
+ .mr-header{padding:16px 14px !important;min-height:60px}
+ .mr-name{font-size:15px !important}
+ .mr-chevron{width:36px !important;height:36px !important}
+
+ /* Admin — hide sidebar, show bottom nav */
+ .admin-aside{display:none}
+ .admin-bottomnav{display:block}
+ .admin-main{padding-bottom:72px}
+
+ /* Brands tab stacked on mobile */
+ .brands-layout{flex-direction:column}
+ .brands-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--g200);max-height:52px;overflow:hidden;flex-shrink:0}
+ .brands-sidebar.open{max-height:300px;overflow-y:auto}
+ .brands-content{padding:12px}
+
+ /* Admin model rows */
+ .admin-model-row{flex-direction:column !important;gap:8px !important}
+ .admin-model-prices{flex-wrap:wrap}
+ .admin-model-actions{flex-direction:row !important;justify-content:flex-end}
+
+ /* Requests card */
+ .req-card-body{flex-direction:column !important}
+ .req-card-actions{flex-direction:row !important;justify-content:flex-end;flex-wrap:wrap}
+}
 `;
 
 /* ─────────────────────────────────────────
@@ -323,22 +414,21 @@ const I = (c,s=16,w=2) =>
  <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor"
    strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">{c}</svg>;
 
-const ISearch  = () => I(<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>);
-const ILock    = () => I(<><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>);
-const IBell    = () => I(<><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>);
-const IPlus    = () => I(<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>,16,2.5);
-const ITrash   = () => I(<><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></>,15);
-const IEdit    = () => I(<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,15);
-const ICheck   = () => I(<polyline points="20 6 9 17 4 12"/>,16,2.5);
-const IX       = () => I(<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>);
-const IChevD   = () => I(<polyline points="6 9 12 15 18 9"/>);
-const IChevU   = () => I(<polyline points="18 15 12 9 6 15"/>);
-const IGrid    = () => I(<><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></>);
-const ISettings= () => I(<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></>);
-const IEye     = () => I(<><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>);
-const IBack    = () => I(<><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></>);
-const IArrowU  = () => I(<polyline points="18 15 12 9 6 15"/>,13,2.5);
-const IArrowD  = () => I(<polyline points="6 9 12 15 18 9"/>,13,2.5);
+const ISearch  = ({s=16}) => I(<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>,s);
+const ILock    = ({s=16}) => I(<><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,s);
+const IBell    = ({s=16}) => I(<><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>,s);
+const IPlus    = ({s=16}) => I(<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>,s,2.5);
+const ITrash   = ({s=15}) => I(<><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></>,s);
+const IEdit    = ({s=15}) => I(<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,s);
+const ICheck   = ({s=16}) => I(<polyline points="20 6 9 17 4 12"/>,s,2.5);
+const IX       = ({s=16}) => I(<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>,s);
+const IChevD   = ({s=16}) => I(<polyline points="6 9 12 15 18 9"/>,s);
+const IGrid    = ({s=16}) => I(<><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></>,s);
+const ISettings= ({s=16}) => I(<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></>,s);
+const IEye     = ({s=16}) => I(<><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>,s);
+const IBack    = ({s=16}) => I(<><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></>,s);
+const IArrowU  = ({s=13}) => I(<polyline points="18 15 12 9 6 15"/>,s,2.5);
+const IArrowD  = ({s=13}) => I(<polyline points="6 9 12 15 18 9"/>,s,2.5);
 
 /* ─────────────────────────────────────────
   BTN
@@ -414,15 +504,14 @@ function Field({label,hint,...props}){
 }
 
 /* ═══════════════════════════════════════════
-  SUGGESTION FORM  (sous chaque prix)
-  Fix: callback stable via prop directe
+  SUGGESTION FORM
 ═══════════════════════════════════════════ */
 function SuggestionForm({brandId,brandName,modelId,modelName,repairTypeId,repairTypeLabel,currentPrice,onSuggest}){
  const [open,   setOpen]   = useState(false);
  const [name,   setName]   = useState("");
  const [price,  setPrice]  = useState("");
  const [comment,setComment]= useState("");
- const [status, setStatus] = useState("idle"); // idle | error | sent
+ const [status, setStatus] = useState("idle");
 
  function reset(){
    setName(""); setPrice(""); setComment(""); setStatus("idle"); setOpen(false);
@@ -442,7 +531,7 @@ function SuggestionForm({brandId,brandName,modelId,modelName,repairTypeId,repair
      repairTypeId, repairTypeLabel,
      currentPrice,
    };
-   onSuggest(req);           // appel direct — toujours stable via useCallback au root
+   onSuggest(req);
    setStatus("sent");
    setTimeout(reset, 2400);
  }
@@ -466,8 +555,6 @@ function SuggestionForm({brandId,brandName,modelId,modelName,repairTypeId,repair
      <p style={{fontSize:"12px",fontWeight:800,color:"var(--bl2)",marginBottom:"10px"}}>
        💬 Suggérer une modification de prix
      </p>
-
-     {/* Nom */}
      <div style={{marginBottom:"8px"}}>
        <input value={name} onChange={e=>{setName(e.target.value);setStatus("idle");}}
          placeholder="Votre nom *"
@@ -478,21 +565,16 @@ function SuggestionForm({brandId,brandName,modelId,modelName,repairTypeId,repair
          <p style={{color:"var(--rd)",fontSize:"11px",marginTop:"3px",fontWeight:600}}>⚠ Nom obligatoire</p>
        )}
      </div>
-
-     {/* Prix suggéré */}
      <input type="number" value={price} onChange={e=>setPrice(e.target.value)}
        placeholder={`Prix suggéré €  (actuel : ${currentPrice!=null?currentPrice+"€":"—"})`}
        style={{width:"100%",border:"1.5px solid var(--bl4)",borderRadius:"8px",padding:"8px 10px",
          fontSize:"12px",background:"#fff",color:"var(--g900)",outline:"none",
          boxSizing:"border-box",marginBottom:"8px"}}/>
-
-     {/* Commentaire */}
      <textarea value={comment} onChange={e=>setComment(e.target.value)}
        placeholder="Commentaire / motif de la demande…" rows={3}
        style={{width:"100%",border:"1.5px solid var(--bl4)",borderRadius:"8px",padding:"8px 10px",
          fontSize:"12px",background:"#fff",color:"var(--g900)",outline:"none",
          boxSizing:"border-box",resize:"vertical",fontFamily:"'Outfit',sans-serif",marginBottom:"10px"}}/>
-
      <div style={{display:"flex",gap:"8px"}}>
        <Btn size="sm" onClick={handleSend}><ICheck/> Envoyer</Btn>
        <Btn size="sm" variant="ghost" onClick={reset}>Annuler</Btn>
@@ -502,12 +584,12 @@ function SuggestionForm({brandId,brandName,modelId,modelName,repairTypeId,repair
 }
 
 /* ═══════════════════════════════════════════
-  PRIX GRILLE  (dans l'accordéon modèle)
+  PRIX GRILLE
 ═══════════════════════════════════════════ */
 function PricesGrid({model,brand,repairTypes,onSuggest}){
  return(
    <div className="aI" style={{padding:"14px 16px 18px",borderTop:"2px solid var(--g100)"}}>
-     <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(168px,1fr))",gap:"10px"}}>
+     <div className="prices-grid">
        {repairTypes.map(rt=>{
          const price = model.prices[rt.id];
          return(
@@ -520,16 +602,11 @@ function PricesGrid({model,brand,repairTypes,onSuggest}){
                color:price!=null?"var(--bl)":"var(--g300)",fontFamily:"'DM Mono',monospace"}}>
                {price!=null?`${price}€`:"—"}
              </div>
-             {/* SUGGESTION FORM — onSuggest passé directement */}
              <SuggestionForm
-               brandId={brand.id}
-               brandName={brand.name}
-               modelId={model.id}
-               modelName={model.name}
-               repairTypeId={rt.id}
-               repairTypeLabel={rt.label}
-               currentPrice={price}
-               onSuggest={onSuggest}
+               brandId={brand.id} brandName={brand.name}
+               modelId={model.id} modelName={model.name}
+               repairTypeId={rt.id} repairTypeLabel={rt.label}
+               currentPrice={price} onSuggest={onSuggest}
              />
            </div>
          );
@@ -540,7 +617,7 @@ function PricesGrid({model,brand,repairTypes,onSuggest}){
 }
 
 /* ═══════════════════════════════════════════
-  MODEL ROW (accordéon)
+  MODEL ROW
 ═══════════════════════════════════════════ */
 function ModelRow({model,brand,repairTypes,onSuggest,delay=0}){
  const [open,setOpen] = useState(false);
@@ -549,22 +626,21 @@ function ModelRow({model,brand,repairTypes,onSuggest,delay=0}){
 
  return(
    <div className={`mr aU${open?" open":""}`} style={{animationDelay:`${delay}s`}}>
-     {/* Header cliquable */}
-     <div onClick={()=>setOpen(o=>!o)}
+     <div className="mr-header" onClick={()=>setOpen(o=>!o)}
        style={{padding:"14px 18px",display:"flex",alignItems:"center",
          justifyContent:"space-between",cursor:"pointer",userSelect:"none",
-         background:open?"#ebf1ff":"#fff",transition:"background .2s"}}>
+         background:open?"#ebf1ff":"#fff",transition:"background .2s",minHeight:"56px"}}>
        <div style={{display:"flex",alignItems:"center",gap:"11px"}}>
          <div style={{width:"9px",height:"9px",borderRadius:"50%",flexShrink:0,
            background:open?"var(--bl)":"var(--g300)",transition:"background .2s"}}/>
-         <span style={{fontWeight:700,fontSize:"14px",color:"var(--g900)"}}>{model.name}</span>
+         <span className="mr-name" style={{fontWeight:700,fontSize:"14px",color:"var(--g900)"}}>{model.name}</span>
        </div>
        <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
          {minP!=null&&!open&&(
            <span style={{fontSize:"12px",color:"var(--g400)",fontWeight:500,
              fontFamily:"'DM Mono',monospace"}}>dès {minP}€</span>
          )}
-         <div style={{width:"30px",height:"30px",borderRadius:"8px",display:"flex",
+         <div className="mr-chevron" style={{width:"34px",height:"34px",borderRadius:"8px",display:"flex",
            alignItems:"center",justifyContent:"center",transition:"all .2s",
            background:open?"var(--bl)":"var(--g100)",color:open?"#fff":"var(--g500)",
            transform:open?"rotate(180deg)":"none"}}>
@@ -572,7 +648,6 @@ function ModelRow({model,brand,repairTypes,onSuggest,delay=0}){
          </div>
        </div>
      </div>
-     {/* Grille prix */}
      {open&&(
        <PricesGrid model={model} brand={brand} repairTypes={repairTypes} onSuggest={onSuggest}/>
      )}
@@ -582,17 +657,14 @@ function ModelRow({model,brand,repairTypes,onSuggest,delay=0}){
 
 /* ═══════════════════════════════════════════
   PUBLIC VIEW
-  Écran 1 : grille de tuiles marques
-  Écran 2 : liste de modèles d'une marque
 ═══════════════════════════════════════════ */
 function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
- const [screen, setScreen] = useState("brands"); // "brands"|"models"
+ const [screen, setScreen] = useState("brands");
  const [brandId,setBrandId] = useState(null);
  const [search, setSearch]  = useState("");
 
  const brand = brands.find(b=>b.id===brandId);
 
- // Résultats de recherche cross-marque
  const searchResults = search.trim().length>1
    ? brands.flatMap(b=>
        [...b.models].sort((a,x)=>a.order-x.order)
@@ -616,24 +688,26 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
      {/* ── HEADER ── */}
      <header style={{background:"var(--bl)",boxShadow:"0 2px 28px rgba(0,91,255,.38)",
        position:"sticky",top:0,zIndex:100}}>
-       <div style={{maxWidth:"1200px",margin:"0 auto",padding:"0 20px"}}>
-         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",height:"66px"}}>
-           <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+       <div style={{maxWidth:"1400px",margin:"0 auto",padding:"0 20px"}}>
+         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
+           height:"66px",gap:"12px"}}>
+           <div style={{display:"flex",alignItems:"center",gap:"10px",flex:1,minWidth:0}}>
              {screen==="models"&&(
                <button onClick={goBack} style={{background:"rgba(255,255,255,.18)",border:"1px solid rgba(255,255,255,.25)",
-                 borderRadius:"10px",color:"#fff",padding:"8px 10px",cursor:"pointer",display:"flex",
-                 marginRight:"4px",transition:"background .15s"}}
+                 borderRadius:"10px",color:"#fff",padding:"10px 12px",cursor:"pointer",display:"flex",
+                 flexShrink:0,transition:"background .15s"}}
                  onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.28)"}
                  onMouseLeave={e=>e.currentTarget.style.background="rgba(255,255,255,.18)"}>
                  <IBack/>
                </button>
              )}
-             <div style={{width:"40px",height:"40px",background:"rgba(255,255,255,.2)",borderRadius:"11px",
-               display:"flex",alignItems:"center",justifyContent:"center",fontSize:"20px",flexShrink:0}}>
+             <div style={{width:"42px",height:"42px",background:"rgba(255,255,255,.2)",borderRadius:"12px",
+               display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px",flexShrink:0}}>
                🛠️
              </div>
-             <div>
-               <div style={{fontWeight:900,fontSize:"18px",color:"#fff",letterSpacing:"-.5px"}}>{siteName}</div>
+             <div style={{minWidth:0}}>
+               <div style={{fontWeight:900,fontSize:"18px",color:"#fff",letterSpacing:"-.5px",
+                 overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{siteName}</div>
                <div style={{fontSize:"10px",color:"rgba(255,255,255,.65)",fontWeight:500}}>
                  {screen==="models"&&brand
                    ? <><span style={{opacity:.6}}>Marques</span>{" › "}<span>{brand.name}</span></>
@@ -643,9 +717,10 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
            </div>
            <button onClick={onAdminClick}
              style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.25)",
-               borderRadius:"10px",color:"#fff",padding:"8px 16px",fontSize:"12px",fontWeight:700,
-               display:"flex",alignItems:"center",gap:"7px",cursor:"pointer"}}>
-             <ILock/> Admin
+               borderRadius:"10px",color:"#fff",padding:"10px 16px",fontSize:"12px",fontWeight:700,
+               display:"flex",alignItems:"center",gap:"7px",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+             <ILock/> <span style={{display:"none"}} className="admin-label">Admin</span>
+             <span>Admin</span>
            </button>
          </div>
          {/* Barre de recherche */}
@@ -653,11 +728,11 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
            <div style={{position:"relative"}}>
              <span style={{position:"absolute",left:"14px",top:"50%",transform:"translateY(-50%)",
                color:"rgba(255,255,255,.5)",pointerEvents:"none",display:"flex"}}><ISearch/></span>
-             <input value={search} onChange={e=>setSearch(e.target.value)}
-               placeholder="Rechercher un modèle dans toutes les marques…"
+             <input className="search-input" value={search} onChange={e=>setSearch(e.target.value)}
+               placeholder="Rechercher un modèle…"
                style={{width:"100%",background:"rgba(255,255,255,.15)",
-                 border:"1.5px solid rgba(255,255,255,.25)",borderRadius:"10px",
-                 padding:"11px 16px 11px 44px",fontSize:"14px",color:"#fff",
+                 border:"1.5px solid rgba(255,255,255,.25)",borderRadius:"12px",
+                 padding:"13px 16px 13px 44px",fontSize:"15px",color:"#fff",
                  outline:"none",boxSizing:"border-box"}}
                onFocus={e=>e.target.style.background="rgba(255,255,255,.22)"}
                onBlur={e=>e.target.style.background="rgba(255,255,255,.15)"}
@@ -668,9 +743,9 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
      </header>
 
      {/* ── MAIN ── */}
-     <main style={{maxWidth:"1200px",margin:"0 auto",padding:"28px 20px 80px"}}>
+     <main className="public-main">
 
-       {/* ── RÉSULTATS DE RECHERCHE ── */}
+       {/* Résultats recherche */}
        {search.trim().length>1&&(
          <div className="aI">
            <p style={{color:"var(--g500)",fontSize:"13px",marginBottom:"18px",fontWeight:500}}>
@@ -700,27 +775,27 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
          </div>
        )}
 
-       {/* ── GRILLE DES TUILES MARQUES ── */}
+       {/* Grille marques */}
        {!search.trim()&&screen==="brands"&&(
          <div className="aI">
            <h2 style={{fontSize:"22px",fontWeight:800,color:"var(--g800)",marginBottom:"6px"}}>
              Choisissez votre marque
            </h2>
-           <p style={{fontSize:"13px",color:"var(--g400)",marginBottom:"28px"}}>
+           <p style={{fontSize:"13px",color:"var(--g400)",marginBottom:"24px"}}>
              Cliquez sur une marque pour explorer ses modèles et tarifs.
            </p>
-           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(195px,1fr))",gap:"18px"}}>
+           <div className="brand-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:"18px"}}>
              {brands.map((b,i)=>(
-               <div key={b.id} className={`bt aU`} style={{animationDelay:`${i*0.06}s`}}
+               <div key={b.id} className="bt aU" style={{animationDelay:`${i*0.06}s`}}
                  onClick={()=>openBrand(b.id)}
                  onMouseEnter={e=>e.currentTarget.style.borderColor=b.accent||"var(--bl)"}
                  onMouseLeave={e=>e.currentTarget.style.borderColor="transparent"}>
-                 {/* Zone colorée logo */}
-                 <div style={{background:b.bgGrad,padding:"26px 20px 22px",
+                 <div className="brand-tile-zone" style={{background:b.bgGrad,padding:"26px 20px 22px",
                    display:"flex",flexDirection:"column",alignItems:"center",gap:"10px"}}>
-                   <div style={{width:"88px",height:"56px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                   <div style={{width:"96px",height:"60px",display:"flex",alignItems:"center",justifyContent:"center"}}>
                      <img src={b.logo} alt={b.name}
-                       style={{maxWidth:"88px",maxHeight:"52px",objectFit:"contain",
+                       className="brand-tile-logo"
+                       style={{maxWidth:"96px",maxHeight:"56px",objectFit:"contain",
                          filter:"drop-shadow(0 2px 6px rgba(0,0,0,.15))"}}
                        onError={e=>{e.target.style.display="none";e.target.nextSibling.style.display="flex";}}
                      />
@@ -731,8 +806,7 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
                      </div>
                    </div>
                  </div>
-                 {/* Bandeau info */}
-                 <div style={{background:"#fff",padding:"13px 18px 15px",
+                 <div style={{background:"#fff",padding:"14px 18px 16px",
                    borderTop:`3px solid ${b.accent||"var(--bl)"}`}}>
                    <div style={{fontWeight:800,fontSize:"16px",color:"var(--g900)",marginBottom:"4px"}}>
                      {b.name}
@@ -752,19 +826,18 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
          </div>
        )}
 
-       {/* ── LISTE DES MODÈLES D'UNE MARQUE ── */}
+       {/* Liste modèles d'une marque */}
        {!search.trim()&&screen==="models"&&brand&&(
          <div className="aI">
-           {/* Header marque */}
            <div style={{display:"flex",alignItems:"center",gap:"16px",marginBottom:"24px",
-             background:"#fff",borderRadius:"var(--r16)",padding:"20px 24px",
-             boxShadow:"var(--sh2)",borderLeft:`5px solid ${brand.accent||"var(--bl)"}`}}>
+             background:"#fff",borderRadius:"var(--r16)",padding:"18px 20px",
+             boxShadow:"var(--sh2)",borderLeft:`5px solid ${brand.accent||"var(--bl)"}`,flexWrap:"wrap"}}>
              <div style={{width:"72px",height:"50px",display:"flex",alignItems:"center",justifyContent:"center"}}>
                <img src={brand.logo} alt={brand.name}
                  style={{maxWidth:"72px",maxHeight:"48px",objectFit:"contain"}}
                  onError={e=>e.target.style.display="none"}/>
              </div>
-             <div style={{flex:1}}>
+             <div style={{flex:1,minWidth:"140px"}}>
                <h2 style={{fontWeight:800,fontSize:"22px",color:"var(--g900)"}}>{brand.name}</h2>
                <p style={{color:"var(--g400)",fontSize:"13px",marginTop:"2px"}}>
                  {brand.models.length} modèle{brand.models.length>1?"s":" disponible"} — cliquez pour afficher les tarifs
@@ -777,7 +850,6 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
              </button>
            </div>
 
-           {/* Modèles */}
            <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
              {[...brand.models].sort((a,b)=>a.order-b.order).map((m,i)=>(
                <ModelRow key={m.id} model={m} brand={brand}
@@ -802,11 +874,11 @@ function AdminBrandsTab({brands,setBrands}){
  const [activeBrandId,setActiveBrandId] = useState(brands[0]?.id||null);
  const [modal,setModal] = useState(null);
  const [form, setForm]  = useState({});
+ const [sidebarOpen, setSidebarOpen] = useState(false);
 
  const brand  = brands.find(b=>b.id===activeBrandId);
  const sorted = brand?[...brand.models].sort((a,b)=>a.order-b.order):[];
 
- // ─ brand actions
  function saveBrand(){
    if(!form.name?.trim())return;
    if(modal.type==="addBrand"){
@@ -823,8 +895,6 @@ function AdminBrandsTab({brands,setBrands}){
    setBrands(bs=>bs.filter(b=>b.id!==id));
    if(activeBrandId===id) setActiveBrandId(brands.find(b=>b.id!==id)?.id||null);
  }
-
- // ─ model actions
  function saveModel(){
    if(!form.name?.trim())return;
    if(modal.type==="addModel"){
@@ -853,48 +923,76 @@ function AdminBrandsTab({brands,setBrands}){
    }));
  }
 
- return(
-   <div style={{display:"flex",flex:1,overflow:"hidden"}}>
-     {/* Sidebar marques */}
-     <div style={{width:"230px",background:"#fff",borderRight:"1px solid var(--g200)",overflowY:"auto",flexShrink:0}}>
-       <div style={{padding:"14px 12px 10px",borderBottom:"1px solid var(--g100)",
-         display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-         <span style={{fontSize:"11px",fontWeight:800,color:"var(--g500)",textTransform:"uppercase",letterSpacing:".6px"}}>
-           Marques
-         </span>
-         <Btn size="sm" onClick={()=>{setForm({});setModal({type:"addBrand"})}}><IPlus/></Btn>
-       </div>
-       {brands.map(b=>(
-         <div key={b.id} onClick={()=>setActiveBrandId(b.id)}
-           style={{display:"flex",alignItems:"center",gap:"8px",padding:"11px 14px",cursor:"pointer",
-             background:activeBrandId===b.id?"var(--bl3)":"transparent",
-             borderLeft:activeBrandId===b.id?"3px solid var(--bl)":"3px solid transparent",
-             transition:"all .12s"}}>
-           <div style={{width:"32px",height:"24px",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-             {b.logo
-               ?<img src={b.logo} alt="" style={{maxWidth:"32px",maxHeight:"22px",objectFit:"contain"}} onError={e=>e.target.style.opacity="0"}/>
-               :<span style={{fontSize:"14px",fontWeight:800,color:"var(--bl)"}}>{b.name[0]}</span>}
-           </div>
-           <div style={{flex:1,minWidth:0}}>
-             <div style={{fontWeight:700,fontSize:"13px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
-               color:activeBrandId===b.id?"var(--bl)":"var(--g800)"}}>{b.name}</div>
-             <div style={{fontSize:"10px",color:"var(--g400)"}}>{b.models.length} modèles</div>
-           </div>
-           <div style={{display:"flex",gap:"2px",flexShrink:0}}>
-             <button onClick={e=>{e.stopPropagation();setForm({name:b.name,logo:b.logo||"",accent:b.accent||"#005BFF"});setModal({type:"editBrand",data:b});}}
-               style={{background:"none",border:"none",color:"var(--g400)",cursor:"pointer",padding:"3px",display:"flex"}}><IEdit/></button>
-             <button onClick={e=>{e.stopPropagation();deleteBrand(b.id);}}
-               style={{background:"none",border:"none",color:"var(--rd)",cursor:"pointer",padding:"3px",display:"flex"}}><ITrash/></button>
-           </div>
+ function selectBrand(id){
+   setActiveBrandId(id);
+   setSidebarOpen(false);
+ }
+
+ const SidebarContent = () => (
+   <>
+     <div style={{padding:"14px 12px 10px",borderBottom:"1px solid var(--g100)",
+       display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+       <span style={{fontSize:"11px",fontWeight:800,color:"var(--g500)",textTransform:"uppercase",letterSpacing:".6px"}}>
+         Marques
+       </span>
+       <Btn size="sm" onClick={()=>{setForm({});setModal({type:"addBrand"})}}><IPlus/></Btn>
+     </div>
+     {brands.map(b=>(
+       <div key={b.id} onClick={()=>selectBrand(b.id)}
+         style={{display:"flex",alignItems:"center",gap:"8px",padding:"12px 14px",cursor:"pointer",
+           background:activeBrandId===b.id?"var(--bl3)":"transparent",
+           borderLeft:activeBrandId===b.id?"3px solid var(--bl)":"3px solid transparent",
+           transition:"all .12s"}}>
+         <div style={{width:"32px",height:"24px",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+           {b.logo
+             ?<img src={b.logo} alt="" style={{maxWidth:"32px",maxHeight:"22px",objectFit:"contain"}} onError={e=>e.target.style.opacity="0"}/>
+             :<span style={{fontSize:"14px",fontWeight:800,color:"var(--bl)"}}>{b.name[0]}</span>}
          </div>
-       ))}
+         <div style={{flex:1,minWidth:0}}>
+           <div style={{fontWeight:700,fontSize:"13px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
+             color:activeBrandId===b.id?"var(--bl)":"var(--g800)"}}>{b.name}</div>
+           <div style={{fontSize:"10px",color:"var(--g400)"}}>{b.models.length} modèles</div>
+         </div>
+         <div style={{display:"flex",gap:"2px",flexShrink:0}}>
+           <button onClick={e=>{e.stopPropagation();setForm({name:b.name,logo:b.logo||"",accent:b.accent||"#005BFF"});setModal({type:"editBrand",data:b});}}
+             style={{background:"none",border:"none",color:"var(--g400)",cursor:"pointer",padding:"4px",display:"flex"}}><IEdit/></button>
+           <button onClick={e=>{e.stopPropagation();deleteBrand(b.id);}}
+             style={{background:"none",border:"none",color:"var(--rd)",cursor:"pointer",padding:"4px",display:"flex"}}><ITrash/></button>
+         </div>
+       </div>
+     ))}
+   </>
+ );
+
+ return(
+   <div className="brands-layout">
+     {/* Sidebar desktop */}
+     <div className="brands-sidebar">
+       <SidebarContent/>
      </div>
 
-     {/* Liste modèles */}
-     <div style={{flex:1,overflowY:"auto",padding:"20px 24px"}}>
+     {/* Contenu modèles */}
+     <div className="brands-content">
+       {/* Mobile: sélecteur de marque */}
+       <div style={{display:"none"}} className="mobile-brand-selector">
+         <button onClick={()=>setSidebarOpen(o=>!o)}
+           style={{width:"100%",padding:"12px 16px",background:"var(--bl3)",border:"1.5px solid var(--bl4)",
+             borderRadius:"10px",display:"flex",alignItems:"center",justifyContent:"space-between",
+             fontWeight:700,fontSize:"14px",color:"var(--bl)",cursor:"pointer",marginBottom:"14px"}}>
+           <span>{brand?.name||"Choisir une marque"}</span>
+           <IChevD/>
+         </button>
+         {sidebarOpen&&(
+           <div style={{background:"#fff",borderRadius:"12px",boxShadow:"var(--sh2)",
+             marginBottom:"14px",border:"1px solid var(--g200)",overflow:"hidden"}}>
+             <SidebarContent/>
+           </div>
+         )}
+       </div>
+
        {brand?(
          <>
-           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"20px"}}>
+           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"20px",flexWrap:"wrap",gap:"10px"}}>
              <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
                {brand.logo&&<img src={brand.logo} alt="" style={{height:"30px",objectFit:"contain"}} onError={e=>e.target.style.display="none"}/>}
                <div>
@@ -907,30 +1005,29 @@ function AdminBrandsTab({brands,setBrands}){
 
            <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
              {sorted.map((m,idx)=>(
-               <div key={m.id} style={{background:"#fff",borderRadius:"var(--r12)",boxShadow:"var(--sh1)",
+               <div key={m.id} className="admin-model-row" style={{background:"#fff",borderRadius:"var(--r12)",boxShadow:"var(--sh1)",
                  padding:"12px 16px",display:"flex",alignItems:"flex-start",gap:"10px",
                  border:"1.5px solid var(--g100)"}}>
-                 {/* Ordre */}
                  <div style={{display:"flex",flexDirection:"column",gap:"3px",paddingTop:"2px"}}>
                    <button onClick={()=>moveModel(m.id,-1)} disabled={idx===0}
-                     style={{background:"var(--g100)",border:"none",borderRadius:"5px",padding:"4px 5px",
+                     style={{background:"var(--g100)",border:"none",borderRadius:"5px",padding:"5px 6px",
                        cursor:idx===0?"default":"pointer",opacity:idx===0?.3:1,display:"flex"}}><IArrowU/></button>
                    <button onClick={()=>moveModel(m.id,1)} disabled={idx===sorted.length-1}
-                     style={{background:"var(--g100)",border:"none",borderRadius:"5px",padding:"4px 5px",
+                     style={{background:"var(--g100)",border:"none",borderRadius:"5px",padding:"5px 6px",
                        cursor:idx===sorted.length-1?"default":"pointer",opacity:idx===sorted.length-1?.3:1,display:"flex"}}><IArrowD/></button>
                  </div>
                  <div style={{flex:1,minWidth:0}}>
                    <div style={{fontWeight:700,fontSize:"14px",marginBottom:"8px"}}>{m.name}</div>
-                   <div style={{display:"flex",flexWrap:"wrap",gap:"5px"}}>
+                   <div className="admin-model-prices" style={{display:"flex",flexWrap:"wrap",gap:"5px"}}>
                      {RT_KEYS.map(k=>(
                        <span key={k} style={{fontSize:"11px",background:"var(--g100)",borderRadius:"6px",
-                         padding:"2px 8px",color:"var(--g600)",fontFamily:"'DM Mono',monospace"}}>
+                         padding:"3px 8px",color:"var(--g600)",fontFamily:"'DM Mono',monospace"}}>
                          {RT_ICONS[k]} {m.prices[k]!=null?`${m.prices[k]}€`:"—"}
                        </span>
                      ))}
                    </div>
                  </div>
-                 <div style={{display:"flex",gap:"6px",flexShrink:0}}>
+                 <div className="admin-model-actions" style={{display:"flex",gap:"6px",flexShrink:0}}>
                    <Btn size="sm" variant="secondary" onClick={()=>{
                      const f={name:m.name};
                      RT_KEYS.forEach(k=>f[k]=m.prices[k]!=null?String(m.prices[k]):"");
@@ -1018,8 +1115,8 @@ function AdminRequestsTab({requests,setRequests,setBrands}){
    <div style={{background:"#fff",borderRadius:"var(--r16)",padding:"18px 20px",boxShadow:"var(--sh1)",
      opacity:req.status==="pending"?1:.65,
      borderLeft:`4px solid ${req.status==="accepted"?"var(--gn)":req.status==="refused"?"var(--rd)":"var(--or)"}`}}>
-     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:"10px"}}>
-       <div style={{flex:1,minWidth:"200px"}}>
+     <div className="req-card-body" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:"10px"}}>
+       <div style={{flex:1,minWidth:"180px"}}>
          <div style={{display:"flex",alignItems:"center",gap:"8px",flexWrap:"wrap",marginBottom:"6px"}}>
            <span style={{fontWeight:800,fontSize:"15px"}}>{req.senderName}</span>
            <span className={`tag ${req.status==="pending"?"to":req.status==="accepted"?"tg":"tr"}`}>
@@ -1046,7 +1143,7 @@ function AdminRequestsTab({requests,setRequests,setBrands}){
          </div>
        </div>
        {req.status==="pending"&&(
-         <div style={{display:"flex",gap:"8px",flexShrink:0}}>
+         <div className="req-card-actions" style={{display:"flex",gap:"8px",flexShrink:0}}>
            <Btn size="sm" variant="success" onClick={()=>accept(req)}>
              <ICheck/> Accepter{req.suggestedPrice!=null?" & appliquer":""}
            </Btn>
@@ -1115,7 +1212,6 @@ function AdminSettingsTab({siteName,setSiteName,repairTypes,setRepairTypes}){
    <div style={{padding:"28px",overflowY:"auto",flex:1}}>
      <h2 style={{fontWeight:800,fontSize:"20px",marginBottom:"24px"}}>Paramètres</h2>
      <div style={{maxWidth:"560px"}}>
-       {/* Nom du site */}
        <div style={{background:"#fff",borderRadius:"var(--r16)",padding:"20px 24px",boxShadow:"var(--sh1)",marginBottom:"16px"}}>
          <h3 style={{fontWeight:700,fontSize:"14px",marginBottom:"16px",color:"var(--g700)"}}>🏷️ Nom du site</h3>
          <Field label="Nom affiché" value={nv} onChange={e=>setNv(e.target.value)} placeholder="Renki Reparation"/>
@@ -1124,11 +1220,10 @@ function AdminSettingsTab({siteName,setSiteName,repairTypes,setRepairTypes}){
          </Btn>
        </div>
 
-       {/* Types de réparation */}
        <div style={{background:"#fff",borderRadius:"var(--r16)",padding:"20px 24px",boxShadow:"var(--sh1)",marginBottom:"16px"}}>
          <h3 style={{fontWeight:700,fontSize:"14px",marginBottom:"6px",color:"var(--g700)"}}>🔧 Types de réparation & Icônes</h3>
          <p style={{fontSize:"12px",color:"var(--g400)",marginBottom:"14px"}}>
-           Modifiez l'emoji et le libellé de chaque type. Les changements sont instantanés.
+           Modifiez l'emoji et le libellé de chaque type.
          </p>
          <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
            {repairTypes.map(rt=>(
@@ -1161,10 +1256,11 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
  const [tab,setTab] = useState("brands");
  const pendingCount = requests.filter(r=>r.status==="pending").length;
 
+ /* Nav item desktop sidebar */
  const NavItem=({id,label,icon,badge})=>(
    <button onClick={()=>setTab(id)} style={{
      width:"100%",textAlign:"left",display:"flex",alignItems:"center",gap:"9px",
-     padding:"10px 14px",borderRadius:"9px",border:"none",cursor:"pointer",fontFamily:"inherit",
+     padding:"11px 14px",borderRadius:"9px",border:"none",cursor:"pointer",fontFamily:"inherit",
      background:tab===id?"var(--bl3)":"transparent",color:tab===id?"var(--bl)":"var(--g600)",
      fontWeight:tab===id?700:500,fontSize:"13px",transition:"all .12s"}}>
      {icon}{label}
@@ -1174,13 +1270,14 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
  );
 
  return(
-   <div style={{display:"flex",height:"100vh",background:"var(--g50)",fontFamily:"'Outfit',sans-serif"}}>
+   <div className="admin-layout">
      <style>{CSS}</style>
-     <aside style={{width:"220px",background:"#fff",borderRight:"1px solid var(--g200)",
-       display:"flex",flexDirection:"column",flexShrink:0}}>
+
+     {/* Sidebar desktop */}
+     <aside className="admin-aside">
        <div style={{padding:"20px 16px 14px",borderBottom:"1px solid var(--g100)"}}>
          <div style={{display:"flex",alignItems:"center",gap:"9px"}}>
-           <div style={{fontSize:"22px"}}>🛠️</div>
+           <div style={{fontSize:"24px"}}>🛠️</div>
            <div>
              <div style={{fontWeight:800,fontSize:"13px",color:"var(--bl)"}}>{siteName}</div>
              <div style={{fontSize:"10px",color:"var(--g400)"}}>Dashboard Admin</div>
@@ -1198,11 +1295,33 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
          </Btn>
        </div>
      </aside>
-     <main style={{flex:1,display:"flex",flexDirection:"column",overflow:"hidden"}}>
+
+     {/* Main content */}
+     <main className="admin-main">
        {tab==="brands"   &&<AdminBrandsTab brands={brands} setBrands={setBrands}/>}
        {tab==="requests" &&<AdminRequestsTab requests={requests} setRequests={setRequests} setBrands={setBrands}/>}
        {tab==="settings" &&<AdminSettingsTab siteName={siteName} setSiteName={setSiteName} repairTypes={repairTypes} setRepairTypes={setRepairTypes}/>}
      </main>
+
+     {/* Bottom nav mobile */}
+     <nav className="admin-bottomnav">
+       <div className="admin-bottomnav-inner">
+         {[
+           {id:"brands",   label:"Modèles",    icon:<IGrid s={22}/>},
+           {id:"requests", label:"Demandes",   icon:<IBell s={22}/>, badge:pendingCount},
+           {id:"settings", label:"Paramètres", icon:<ISettings s={22}/>},
+           {id:"exit",     label:"Visiteur",   icon:<IEye s={22}/>},
+         ].map(item=>(
+           <button key={item.id}
+             className={`admin-bottomnav-btn${tab===item.id?" active":""}`}
+             onClick={()=>item.id==="exit"?onExit():setTab(item.id)}>
+             {item.badge>0&&<span className="bnav-badge">{item.badge}</span>}
+             <span className="bnav-icon">{item.icon}</span>
+             <span>{item.label}</span>
+           </button>
+         ))}
+       </div>
+     </nav>
    </div>
  );
 }
@@ -1253,10 +1372,9 @@ export default function App(){
  const [siteName,    setSiteName]    = useState("Renki Reparation");
  const [repairTypes, setRepairTypes] = useState(DEFAULT_REPAIR_TYPES);
  const [loaded,      setLoaded]      = useState(false);
- const [view,        setView]        = useState("public"); // public|login|admin
+ const [view,        setView]        = useState("public");
  const [adminAuth,   setAdminAuth]   = useState(false);
 
- // ── Chargement initial depuis Firestore
  useEffect(()=>{
    (async()=>{
      try{
@@ -1275,7 +1393,6 @@ export default function App(){
    })();
  },[]);
 
- // ── Sauvegarde auto dans Firestore
  useEffect(()=>{
    if(!loaded)return;
    (async()=>{
@@ -1307,7 +1424,6 @@ export default function App(){
    })();
  },[siteName,repairTypes,loaded]);
 
- // ── Callback STABLE — ne se recréé jamais → pas de perte de référence dans SuggestionForm
  const onSuggest = useCallback((req)=>{
    setRequests(rs=>[...rs,req]);
  },[]);
