@@ -533,9 +533,16 @@ input,select,textarea,button{font-family:inherit}
  .admin-bottomnav{display:block}
  .admin-main{padding-bottom:72px}
  .brands-layout{flex-direction:column}
- .brands-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--g200);max-height:52px;overflow:hidden;flex-shrink:0}
- .brands-sidebar.open{max-height:300px;overflow-y:auto}
- .brands-content{padding:12px}
+ .brands-sidebar{
+   width:100% !important;border-right:none !important;
+   border-bottom:1px solid var(--g200);
+   max-height:54px;overflow:hidden;flex-shrink:0;
+   transition:max-height .3s ease;
+ }
+ .brands-sidebar.open{max-height:420px;overflow-y:auto}
+ .sidebar-mobile-toggle{display:flex !important}
+ .brands-sidebar-header{display:none !important}
+ .brands-content{padding:14px !important}
  .admin-model-row{flex-direction:column !important;gap:8px !important}
  .admin-model-prices{flex-wrap:wrap}
  .admin-model-actions{flex-direction:row !important;justify-content:flex-end}
@@ -1101,11 +1108,11 @@ function AdminBrandsTab({brands,setBrands}){
        <div key={b.id}
          className={`brands-sidebar-item${activeBrandId===b.id?" active":""}`}
          onClick={()=>selectBrand(b.id)}>
-         <div style={{width:"44px",height:"32px",display:"flex",alignItems:"center",
+         <div style={{width:"44px",height:"36px",display:"flex",alignItems:"center",
            justifyContent:"center",flexShrink:0,background:"var(--g50)",
            borderRadius:"8px",padding:"4px"}}>
            {b.logo
-             ?<img src={b.logo} alt="" style={{maxWidth:"40px",maxHeight:"28px",objectFit:"contain"}}
+             ?<img src={b.logo} alt="" style={{maxWidth:"40px",maxHeight:"30px",objectFit:"contain"}}
                 onError={e=>e.target.style.opacity="0"}/>
              :<span style={{fontSize:"18px",fontWeight:800,color:"var(--bl)"}}>{b.name[0]}</span>}
          </div>
@@ -1115,18 +1122,16 @@ function AdminBrandsTab({brands,setBrands}){
              letterSpacing:"-.2px"}}>{b.name}</div>
            <div style={{fontSize:"12px",color:"var(--g400)",marginTop:"1px"}}>{b.models.length} modèles</div>
          </div>
-         <div style={{display:"flex",gap:"4px",flexShrink:0}}>
+         <div style={{display:"flex",gap:"6px",flexShrink:0}}>
            <button onClick={e=>{e.stopPropagation();setForm({name:b.name,logo:b.logo||"",accent:b.accent||"#005BFF"});setModal({type:"editBrand",data:b});}}
-             style={{background:"none",border:"none",color:"var(--g400)",cursor:"pointer",
-               padding:"5px",display:"flex",borderRadius:"6px",transition:"all .12s"}}
-             onMouseEnter={e=>e.currentTarget.style.background="var(--g100)"}
-             onMouseLeave={e=>e.currentTarget.style.background="none"}
+             style={{background:"var(--g100)",border:"none",color:"var(--g600)",cursor:"pointer",
+               padding:"8px 10px",display:"flex",borderRadius:"8px",alignItems:"center",
+               minWidth:"36px",justifyContent:"center"}}
            ><IEdit/></button>
            <button onClick={e=>{e.stopPropagation();deleteBrand(b.id);}}
-             style={{background:"none",border:"none",color:"var(--rd)",cursor:"pointer",
-               padding:"5px",display:"flex",borderRadius:"6px",transition:"all .12s"}}
-             onMouseEnter={e=>e.currentTarget.style.background="var(--rdBg)"}
-             onMouseLeave={e=>e.currentTarget.style.background="none"}
+             style={{background:"var(--rdBg)",border:"none",color:"var(--rd)",cursor:"pointer",
+               padding:"8px 10px",display:"flex",borderRadius:"8px",alignItems:"center",
+               minWidth:"36px",justifyContent:"center"}}
            ><ITrash/></button>
          </div>
        </div>
@@ -1136,8 +1141,18 @@ function AdminBrandsTab({brands,setBrands}){
 
  return(
    <div className="brands-layout">
-     {/* Sidebar marques */}
-     <div className="brands-sidebar">
+     {/* Sidebar marques — avec toggle mobile */}
+     <div className={`brands-sidebar${sidebarOpen?" open":""}`}>
+       {/* Bouton toggle visible uniquement sur mobile */}
+       <div className="sidebar-mobile-toggle" onClick={()=>setSidebarOpen(o=>!o)}
+         style={{display:"none",padding:"14px 16px",background:"var(--bl)",color:"#fff",
+           cursor:"pointer",alignItems:"center",justifyContent:"space-between",
+           fontSize:"15px",fontWeight:700,gap:"8px"}}>
+         <span>📱 {brands.find(b=>b.id===activeBrandId)?.name||"Choisir une marque"}</span>
+         <span style={{transform:sidebarOpen?"rotate(180deg)":"none",transition:"transform .2s",display:"flex"}}>
+           <IChevD s={18}/>
+         </span>
+       </div>
        <SidebarContent/>
      </div>
 
