@@ -1,0 +1,1693 @@
+import "./firebase.js";
+import { useState, useEffect, useCallback } from "react";
+
+/* ─────────────────────────────────────────
+  CONSTANTS
+───────────────────────────────────────── */
+const ADMIN_PWD   = "Raphael2232";
+const SK_BRANDS   = "rr_v6_brands";
+const SK_SITE     = "rr_v6_site";
+const SK_REQUESTS = "rr_v6_requests";
+const SK_RTYPES   = "rr_v6_rtypes";
+
+const DEFAULT_REPAIR_TYPES = [
+ { id:"ecran_o",  label:"Écran Origine",          icon:"📱" },
+ { id:"ecran_c",  label:"Écran Compatible",        icon:"🖥️" },
+ { id:"batterie", label:"Batterie",                icon:"🔋" },
+ { id:"dock",     label:"Dock de charge",          icon:"⚡" },
+ { id:"chassis",  label:"Châssis / Vitre arrière", icon:"🔲" },
+ { id:"cam_av",   label:"Caméra avant",            icon:"🤳" },
+ { id:"cam_ar",   label:"Caméra arrière",          icon:"📷" },
+];
+
+let _c = 0;
+const uid = () => `u${Date.now()}${_c++}${Math.random().toString(36).slice(2,5)}`;
+const pr  = (a,b,c,d,e,f,g) => ({
+ ecran_o:a??null, ecran_c:b??null, batterie:c??null,
+ dock:d??null, chassis:e??null, cam_av:f??null, cam_ar:g??null,
+});
+
+/* ─────────────────────────────────────────
+  DEFAULT BRANDS & MODELS
+───────────────────────────────────────── */
+const DEFAULT_BRANDS = [
+ {
+   id:"apple", name:"Apple",
+   logo:"https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
+   accent:"#1d1d1f", bgGrad:"linear-gradient(135deg,#f5f5f7 0%,#e2e2e7 100%)",
+   models:[
+     {id:uid(),name:"iPhone 17 Pro Max",   order:1,  prices:pr(499,299,119,79,189,99,229)},
+     {id:uid(),name:"iPhone 17 Pro",       order:2,  prices:pr(449,269,109,79,169,89,199)},
+     {id:uid(),name:"iPhone 17 Plus",      order:3,  prices:pr(399,249,99,69,149,79,179)},
+     {id:uid(),name:"iPhone 17",           order:4,  prices:pr(369,229,89,69,139,79,169)},
+     {id:uid(),name:"iPhone 17e",          order:5,  prices:pr(329,199,79,59,119,69,149)},
+     {id:uid(),name:"iPhone Air",          order:6,  prices:pr(349,219,89,69,129,79,159)},
+     {id:uid(),name:"iPhone 16 Pro Max",   order:7,  prices:pr(459,279,109,75,179,95,219)},
+     {id:uid(),name:"iPhone 16 Pro",       order:8,  prices:pr(419,259,99,75,159,85,189)},
+     {id:uid(),name:"iPhone 16 Plus",      order:9,  prices:pr(369,239,89,65,139,75,169)},
+     {id:uid(),name:"iPhone 16",           order:10, prices:pr(339,209,79,65,129,75,159)},
+     {id:uid(),name:"iPhone 16e",          order:11, prices:pr(299,189,69,55,109,65,139)},
+     {id:uid(),name:"iPhone 15 Pro Max",   order:12, prices:pr(429,259,99,69,169,89,199)},
+     {id:uid(),name:"iPhone 15 Pro",       order:13, prices:pr(389,239,89,69,149,79,179)},
+     {id:uid(),name:"iPhone 15 Plus",      order:14, prices:pr(339,219,79,59,129,69,159)},
+     {id:uid(),name:"iPhone 15",           order:15, prices:pr(309,199,69,59,119,69,149)},
+     {id:uid(),name:"iPhone 14 Pro Max",   order:16, prices:pr(389,239,89,65,159,85,189)},
+     {id:uid(),name:"iPhone 14 Pro",       order:17, prices:pr(359,219,79,65,139,75,169)},
+     {id:uid(),name:"iPhone 14 Plus",      order:18, prices:pr(309,199,69,55,119,65,149)},
+     {id:uid(),name:"iPhone 14",           order:19, prices:pr(279,179,69,55,109,65,139)},
+     {id:uid(),name:"iPhone 13 Pro Max",   order:20, prices:pr(349,209,79,59,149,79,169)},
+     {id:uid(),name:"iPhone 13 Pro",       order:21, prices:pr(319,199,69,59,129,69,149)},
+     {id:uid(),name:"iPhone 13 mini",      order:22, prices:pr(249,159,59,49,99,59,129)},
+     {id:uid(),name:"iPhone 13",           order:23, prices:pr(289,179,69,55,119,65,139)},
+     {id:uid(),name:"iPhone 12 Pro Max",   order:24, prices:pr(319,189,69,55,139,69,159)},
+     {id:uid(),name:"iPhone 12 Pro",       order:25, prices:pr(289,179,59,55,119,59,139)},
+     {id:uid(),name:"iPhone 12 mini",      order:26, prices:pr(219,149,49,45,89,55,119)},
+     {id:uid(),name:"iPhone 12",           order:27, prices:pr(259,169,59,49,109,59,129)},
+     {id:uid(),name:"iPhone SE (3e gén.)", order:28, prices:pr(189,129,49,45,79,49,109)},
+     {id:uid(),name:"iPhone 11 Pro Max",   order:29, prices:pr(289,169,59,49,129,59,139)},
+     {id:uid(),name:"iPhone 11 Pro",       order:30, prices:pr(259,159,49,49,109,55,129)},
+     {id:uid(),name:"iPhone 11",           order:31, prices:pr(219,139,49,45,99,55,119)},
+     {id:uid(),name:"iPhone XS Max",       order:32, prices:pr(259,149,49,45,119,55,129)},
+     {id:uid(),name:"iPhone XS",           order:33, prices:pr(229,139,45,45,99,49,119)},
+     {id:uid(),name:"iPhone XR",           order:34, prices:pr(199,129,45,39,89,49,109)},
+     {id:uid(),name:"iPhone X",            order:35, prices:pr(219,139,45,45,99,49,119)},
+     {id:uid(),name:"iPhone SE (2e gén.)", order:36, prices:pr(169,109,39,39,69,45,89)},
+     {id:uid(),name:"iPhone 8 Plus",       order:37, prices:pr(149,99,39,35,69,45,89)},
+     {id:uid(),name:"iPhone 8",            order:38, prices:pr(129,89,35,35,59,39,79)},
+     {id:uid(),name:"iPhone 7 Plus",       order:39, prices:pr(129,89,35,35,59,39,79)},
+     {id:uid(),name:"iPhone 7",            order:40, prices:pr(109,75,29,29,49,35,69)},
+     {id:uid(),name:"iPhone 6S Plus",      order:41, prices:pr(99,65,29,25,45,29,59)},
+     {id:uid(),name:"iPhone 6S",           order:42, prices:pr(89,59,25,25,39,29,55)},
+     {id:uid(),name:"iPhone 6 Plus",       order:43, prices:pr(89,59,25,25,39,29,55)},
+     {id:uid(),name:"iPhone 6",            order:44, prices:pr(79,49,25,25,35,25,49)},
+   ]
+ },
+ {
+   id:"samsung", name:"Samsung",
+   logo:"https://upload.wikimedia.org/wikipedia/commons/2/24/Samsung_Logo.svg",
+   accent:"#1428a0", bgGrad:"linear-gradient(135deg,#eef2ff 0%,#d8e0ff 100%)",
+   models:[
+     {id:uid(),name:"Galaxy S25 Ultra",   order:1,  prices:pr(489,289,119,79,189,99,229)},
+     {id:uid(),name:"Galaxy S25+",        order:2,  prices:pr(419,259,99,69,159,89,199)},
+     {id:uid(),name:"Galaxy S25",         order:3,  prices:pr(359,229,89,65,139,79,169)},
+     {id:uid(),name:"Galaxy S24 Ultra",   order:4,  prices:pr(459,279,109,75,179,95,219)},
+     {id:uid(),name:"Galaxy S24+",        order:5,  prices:pr(389,249,99,69,149,85,189)},
+     {id:uid(),name:"Galaxy S24",         order:6,  prices:pr(329,219,89,65,129,75,159)},
+     {id:uid(),name:"Galaxy S24 FE",      order:7,  prices:pr(279,189,79,59,109,65,139)},
+     {id:uid(),name:"Galaxy S23 Ultra",   order:8,  prices:pr(419,259,99,69,169,89,199)},
+     {id:uid(),name:"Galaxy S23+",        order:9,  prices:pr(349,219,89,65,139,79,169)},
+     {id:uid(),name:"Galaxy S23",         order:10, prices:pr(299,199,79,59,119,69,149)},
+     {id:uid(),name:"Galaxy S23 FE",      order:11, prices:pr(249,169,69,55,99,59,129)},
+     {id:uid(),name:"Galaxy S22 Ultra",   order:12, prices:pr(379,239,89,65,159,85,189)},
+     {id:uid(),name:"Galaxy S22+",        order:13, prices:pr(309,199,79,59,129,75,159)},
+     {id:uid(),name:"Galaxy S22",         order:14, prices:pr(269,179,69,55,109,65,139)},
+     {id:uid(),name:"Galaxy S21 Ultra",   order:15, prices:pr(349,219,79,59,149,79,179)},
+     {id:uid(),name:"Galaxy S21+",        order:16, prices:pr(279,189,69,55,119,69,149)},
+     {id:uid(),name:"Galaxy S21",         order:17, prices:pr(239,169,65,49,99,59,129)},
+     {id:uid(),name:"Galaxy S21 FE",      order:18, prices:pr(199,149,59,49,89,55,119)},
+     {id:uid(),name:"Galaxy S20 Ultra",   order:19, prices:pr(319,199,79,55,139,75,169)},
+     {id:uid(),name:"Galaxy S20+",        order:20, prices:pr(259,169,65,49,109,65,139)},
+     {id:uid(),name:"Galaxy S20",         order:21, prices:pr(219,149,59,45,89,59,119)},
+     {id:uid(),name:"Galaxy S20 FE",      order:22, prices:pr(179,129,55,45,79,55,109)},
+     {id:uid(),name:"Galaxy Z Fold 7",    order:23, prices:pr(749,null,159,109,269,139,289)},
+     {id:uid(),name:"Galaxy Z Fold 6",    order:24, prices:pr(699,null,149,99,249,129,269)},
+     {id:uid(),name:"Galaxy Z Fold 5",    order:25, prices:pr(649,null,139,99,229,119,249)},
+     {id:uid(),name:"Galaxy Z Fold 4",    order:26, prices:pr(599,null,129,89,209,109,229)},
+     {id:uid(),name:"Galaxy Z Fold 3",    order:27, prices:pr(549,null,119,89,189,99,209)},
+     {id:uid(),name:"Galaxy Z Flip 7",    order:28, prices:pr(419,null,129,85,189,105,199)},
+     {id:uid(),name:"Galaxy Z Flip 7 FE", order:29, prices:pr(329,null,109,75,159,89,169)},
+     {id:uid(),name:"Galaxy Z Flip 6",    order:30, prices:pr(389,null,119,79,179,99,189)},
+     {id:uid(),name:"Galaxy Z Flip 5",    order:31, prices:pr(359,null,109,75,159,89,169)},
+     {id:uid(),name:"Galaxy Z Flip 4",    order:32, prices:pr(319,null,99,69,139,79,149)},
+     {id:uid(),name:"Galaxy Z Flip 3",    order:33, prices:pr(289,null,89,65,119,75,139)},
+     {id:uid(),name:"Galaxy A55",         order:34, prices:pr(199,139,59,49,89,59,109)},
+     {id:uid(),name:"Galaxy A54",         order:35, prices:pr(179,129,55,45,79,55,99)},
+     {id:uid(),name:"Galaxy A53",         order:36, prices:pr(159,109,49,39,69,49,89)},
+     {id:uid(),name:"Galaxy A35",         order:37, prices:pr(159,109,49,39,69,49,89)},
+     {id:uid(),name:"Galaxy A34",         order:38, prices:pr(149,99,45,39,65,45,85)},
+     {id:uid(),name:"Galaxy A33",         order:39, prices:pr(139,95,43,37,61,43,83)},
+     {id:uid(),name:"Galaxy A25",         order:40, prices:pr(129,89,39,35,55,39,75)},
+     {id:uid(),name:"Galaxy A24",         order:41, prices:pr(119,85,37,33,51,37,71)},
+     {id:uid(),name:"Galaxy A23",         order:42, prices:pr(109,79,35,29,47,35,67)},
+     {id:uid(),name:"Galaxy A15",         order:43, prices:pr(109,79,39,35,49,39,69)},
+     {id:uid(),name:"Galaxy A14",         order:44, prices:pr(99,69,35,29,45,35,65)},
+     {id:uid(),name:"Galaxy A13",         order:45, prices:pr(89,65,33,27,41,33,61)},
+     {id:uid(),name:"Galaxy A05s",        order:46, prices:pr(85,62,30,25,39,30,57)},
+     {id:uid(),name:"Galaxy A05",         order:47, prices:pr(79,55,29,23,37,29,55)},
+     {id:uid(),name:"Galaxy A03s",        order:48, prices:pr(75,52,27,21,35,27,51)},
+     {id:uid(),name:"Galaxy A03",         order:49, prices:pr(69,49,25,19,33,25,49)},
+     {id:uid(),name:"Galaxy A10e",        order:50, prices:pr(69,49,25,19,33,25,49)},
+     {id:uid(),name:"Galaxy A10s",        order:51, prices:pr(75,52,27,21,35,27,51)},
+     {id:uid(),name:"Galaxy A10",         order:52, prices:pr(79,55,29,23,37,29,55)},
+   ]
+ },
+ {
+   id:"xiaomi", name:"Xiaomi",
+   logo:"https://upload.wikimedia.org/wikipedia/commons/2/29/Xiaomi_logo.svg",
+   accent:"#ff6900", bgGrad:"linear-gradient(135deg,#fff4ee 0%,#ffdfc9 100%)",
+   models:[
+     {id:uid(),name:"Xiaomi 15 Ultra",    order:1,  prices:pr(389,239,99,69,159,89,199)},
+     {id:uid(),name:"Xiaomi 15 Pro",      order:2,  prices:pr(349,219,89,65,139,79,179)},
+     {id:uid(),name:"Xiaomi 15",          order:3,  prices:pr(299,189,79,59,119,69,149)},
+     {id:uid(),name:"Xiaomi 14 Ultra",    order:4,  prices:pr(359,229,99,69,149,89,189)},
+     {id:uid(),name:"Xiaomi 14 Pro",      order:5,  prices:pr(319,199,89,65,129,79,169)},
+     {id:uid(),name:"Xiaomi 14",          order:6,  prices:pr(279,179,79,59,109,69,149)},
+     {id:uid(),name:"Xiaomi 13 Ultra",    order:7,  prices:pr(329,209,89,65,139,79,179)},
+     {id:uid(),name:"Xiaomi 13 Pro",      order:8,  prices:pr(289,189,79,59,119,69,159)},
+     {id:uid(),name:"Xiaomi 13",          order:9,  prices:pr(249,169,69,55,99,59,139)},
+     {id:uid(),name:"Xiaomi 13T Pro",     order:10, prices:pr(269,179,75,59,109,65,149)},
+     {id:uid(),name:"Xiaomi 13T",         order:11, prices:pr(229,159,65,49,89,59,129)},
+     {id:uid(),name:"Xiaomi 12 Pro",      order:12, prices:pr(269,179,75,55,109,65,149)},
+     {id:uid(),name:"Xiaomi 12",          order:13, prices:pr(229,159,65,49,89,59,129)},
+     {id:uid(),name:"Xiaomi 12T Pro",     order:14, prices:pr(249,169,69,55,99,65,139)},
+     {id:uid(),name:"Xiaomi 12T",         order:15, prices:pr(209,149,59,45,79,55,119)},
+     {id:uid(),name:"Redmi Note 13 Pro+", order:16, prices:pr(219,149,65,49,89,59,129)},
+     {id:uid(),name:"Redmi Note 13 Pro",  order:17, prices:pr(189,129,55,45,75,55,109)},
+     {id:uid(),name:"Redmi Note 13",      order:18, prices:pr(159,109,45,39,65,45,89)},
+     {id:uid(),name:"Redmi Note 12 Pro+", order:19, prices:pr(199,139,59,45,79,55,119)},
+     {id:uid(),name:"Redmi Note 12 Pro",  order:20, prices:pr(169,119,49,39,69,49,99)},
+     {id:uid(),name:"Redmi Note 12",      order:21, prices:pr(139,99,39,35,55,45,85)},
+     {id:uid(),name:"Poco X6 Pro",        order:22, prices:pr(199,139,59,49,79,55,109)},
+     {id:uid(),name:"Poco X6",            order:23, prices:pr(169,119,49,39,69,49,99)},
+     {id:uid(),name:"Poco F6 Pro",        order:24, prices:pr(229,159,69,55,89,65,129)},
+     {id:uid(),name:"Poco F6",            order:25, prices:pr(189,139,59,45,75,55,109)},
+   ]
+ },
+ {
+   id:"google", name:"Google",
+   logo:"https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg",
+   accent:"#4285f4", bgGrad:"linear-gradient(135deg,#e8f0fe 0%,#c8dcfd 100%)",
+   models:[
+     {id:uid(),name:"Pixel 10 Pro XL",  order:1,  prices:pr(389,239,99,69,159,89,199)},
+     {id:uid(),name:"Pixel 10 Pro",     order:2,  prices:pr(349,219,89,65,139,79,179)},
+     {id:uid(),name:"Pixel 10",         order:3,  prices:pr(299,189,79,59,119,69,149)},
+     {id:uid(),name:"Pixel 10a",        order:4,  prices:pr(249,169,65,49,99,59,129)},
+     {id:uid(),name:"Pixel 9 Pro XL",   order:5,  prices:pr(369,229,99,69,149,85,189)},
+     {id:uid(),name:"Pixel 9 Pro",      order:6,  prices:pr(329,209,89,65,129,75,169)},
+     {id:uid(),name:"Pixel 9 Pro Fold", order:7,  prices:pr(599,null,139,89,219,109,229)},
+     {id:uid(),name:"Pixel 9",          order:8,  prices:pr(279,179,79,59,109,65,149)},
+     {id:uid(),name:"Pixel 9a",         order:9,  prices:pr(229,159,65,49,89,59,129)},
+     {id:uid(),name:"Pixel 8 Pro",      order:10, prices:pr(309,199,89,65,129,75,169)},
+     {id:uid(),name:"Pixel 8",          order:11, prices:pr(259,169,75,55,109,65,149)},
+     {id:uid(),name:"Pixel 8a",         order:12, prices:pr(209,149,59,45,89,55,129)},
+     {id:uid(),name:"Pixel 7 Pro",      order:13, prices:pr(279,179,79,59,119,69,159)},
+     {id:uid(),name:"Pixel 7",          order:14, prices:pr(229,159,65,49,99,59,139)},
+     {id:uid(),name:"Pixel 7a",         order:15, prices:pr(189,139,55,45,79,55,119)},
+     {id:uid(),name:"Pixel 6 Pro",      order:16, prices:pr(249,169,69,55,109,65,149)},
+     {id:uid(),name:"Pixel 6",          order:17, prices:pr(199,139,59,45,89,55,129)},
+     {id:uid(),name:"Pixel 6a",         order:18, prices:pr(169,119,49,39,69,49,109)},
+     {id:uid(),name:"Pixel 5",          order:19, prices:pr(179,129,55,45,79,49,119)},
+     {id:uid(),name:"Pixel 5a",         order:20, prices:pr(159,109,49,39,65,45,99)},
+     {id:uid(),name:"Pixel 4 XL",       order:21, prices:pr(169,119,49,39,79,49,109)},
+     {id:uid(),name:"Pixel 4",          order:22, prices:pr(149,99,45,35,65,45,99)},
+     {id:uid(),name:"Pixel 4a",         order:23, prices:pr(129,89,39,35,55,39,89)},
+   ]
+ },
+ {
+   id:"honor", name:"Honor",
+   logo:"https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/HONOR_Logo_2020.svg/320px-HONOR_Logo_2020.svg.png",
+   accent:"#cf0a2c", bgGrad:"linear-gradient(135deg,#fff0f0 0%,#fdd0d0 100%)",
+   models:[
+     {id:uid(),name:"Honor Magic7 Pro",  order:1,  prices:pr(319,199,89,65,129,79,169)},
+     {id:uid(),name:"Honor Magic7",      order:2,  prices:pr(279,179,79,59,109,69,149)},
+     {id:uid(),name:"Honor Magic7 Lite", order:3,  prices:pr(199,139,59,45,79,55,109)},
+     {id:uid(),name:"Honor Magic6 Pro",  order:4,  prices:pr(299,189,85,65,119,75,159)},
+     {id:uid(),name:"Honor Magic6",      order:5,  prices:pr(259,169,75,55,99,65,139)},
+     {id:uid(),name:"Honor Magic6 Lite", order:6,  prices:pr(179,129,55,45,75,55,99)},
+     {id:uid(),name:"Honor Magic5 Pro",  order:7,  prices:pr(279,179,79,59,109,69,149)},
+     {id:uid(),name:"Honor Magic V3",    order:8,  prices:pr(549,null,129,89,199,99,219)},
+     {id:uid(),name:"Honor Magic V2",    order:9,  prices:pr(499,null,119,85,179,95,199)},
+     {id:uid(),name:"Honor 200 Pro",     order:10, prices:pr(249,169,69,55,99,65,139)},
+     {id:uid(),name:"Honor 200",         order:11, prices:pr(209,149,59,45,79,55,119)},
+     {id:uid(),name:"Honor 200 Lite",    order:12, prices:pr(169,119,49,39,65,49,99)},
+     {id:uid(),name:"Honor 90 Pro",      order:13, prices:pr(229,159,65,49,89,59,129)},
+     {id:uid(),name:"Honor 90",          order:14, prices:pr(189,139,55,45,75,55,109)},
+     {id:uid(),name:"Honor X9b",         order:15, prices:pr(159,109,45,39,65,45,89)},
+     {id:uid(),name:"Honor X8b",         order:16, prices:pr(139,95,39,35,55,39,79)},
+     {id:uid(),name:"Honor X7b",         order:17, prices:pr(119,85,35,29,49,35,69)},
+   ]
+ },
+ {
+   id:"oppo", name:"Oppo",
+   logo:"https://upload.wikimedia.org/wikipedia/commons/6/61/Oppo_Logo.svg",
+   accent:"#1b5e20", bgGrad:"linear-gradient(135deg,#f0fdf4 0%,#c6f6d5 100%)",
+   models:[
+     {id:uid(),name:"Find X8 Pro",   order:1,  prices:pr(349,219,99,69,139,79,179)},
+     {id:uid(),name:"Find X8",       order:2,  prices:pr(299,189,89,65,119,69,159)},
+     {id:uid(),name:"Find X7 Ultra", order:3,  prices:pr(379,239,99,75,149,85,189)},
+     {id:uid(),name:"Find X7 Pro",   order:4,  prices:pr(329,209,89,69,129,79,169)},
+     {id:uid(),name:"Find X7",       order:5,  prices:pr(279,179,79,59,109,69,149)},
+     {id:uid(),name:"Find X6 Pro",   order:6,  prices:pr(299,189,85,65,119,75,159)},
+     {id:uid(),name:"Find N3",       order:7,  prices:pr(529,null,129,89,199,99,219)},
+     {id:uid(),name:"Find N3 Flip",  order:8,  prices:pr(349,null,109,79,149,89,169)},
+     {id:uid(),name:"Reno12 Pro",    order:9,  prices:pr(229,159,69,55,89,65,129)},
+     {id:uid(),name:"Reno12",        order:10, prices:pr(189,139,59,45,75,55,109)},
+     {id:uid(),name:"Reno11 Pro",    order:11, prices:pr(209,149,65,49,85,59,119)},
+     {id:uid(),name:"Reno11",        order:12, prices:pr(169,119,55,45,69,49,99)},
+     {id:uid(),name:"Reno10 Pro+",   order:13, prices:pr(239,159,69,55,89,59,129)},
+     {id:uid(),name:"Reno10 Pro",    order:14, prices:pr(199,139,59,45,79,55,109)},
+     {id:uid(),name:"Reno10",        order:15, prices:pr(159,109,49,39,65,45,89)},
+     {id:uid(),name:"A98",           order:16, prices:pr(179,129,55,45,75,55,99)},
+     {id:uid(),name:"A78",           order:17, prices:pr(149,99,45,35,59,45,89)},
+     {id:uid(),name:"A58",           order:18, prices:pr(119,85,39,29,49,35,69)},
+     {id:uid(),name:"A38",           order:19, prices:pr(99,69,29,25,39,29,59)},
+   ]
+ },
+];
+
+/* ─────────────────────────────────────────
+  GLOBAL CSS — RESPONSIVE
+───────────────────────────────────────── */
+const CSS = `
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap');
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Outfit',sans-serif;background:#eef2f7;color:#0f1b2d;min-height:100vh}
+input,select,textarea,button{font-family:inherit}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#c5d3e0;border-radius:10px}
+:root{
+ --bl:#005BFF;--bl2:#0044CC;--bl3:#E8F0FF;--bl4:#c7d9ff;
+ --g50:#f8fafc;--g100:#f1f5f9;--g200:#e2e8f0;--g300:#cbd5e1;
+ --g400:#94a3b8;--g500:#64748b;--g600:#475569;--g700:#334155;
+ --g800:#1e293b;--g900:#0f172a;
+ --gn:#059669;--gnBg:#d1fae5;
+ --rd:#dc2626;--rdBg:#fee2e2;
+ --or:#d97706;--orBg:#fef3c7;
+ --sh1:0 1px 4px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+ --sh2:0 4px 20px rgba(0,91,255,.09),0 2px 8px rgba(0,0,0,.06);
+ --sh3:0 14px 48px rgba(0,91,255,.2),0 4px 16px rgba(0,0,0,.1);
+ --r8:8px;--r12:12px;--r16:16px;--r20:20px;--r24:24px;
+ --header-h:66px;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+@keyframes slideDown{from{opacity:0;max-height:0}to{opacity:1;max-height:2000px}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.aU{animation:fadeUp .38s cubic-bezier(.16,1,.3,1) both}
+.aI{animation:fadeIn .25s ease both}
+.aS{animation:scaleIn .32s cubic-bezier(.16,1,.3,1) both}
+
+/* Brand tile */
+.bt{
+ cursor:pointer;border-radius:var(--r20);overflow:hidden;
+ box-shadow:var(--sh2);border:2.5px solid transparent;
+ transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s ease,border-color .2s;
+ background:#fff;
+}
+.bt:hover{transform:translateY(-8px) scale(1.03);box-shadow:var(--sh3)}
+.bt:active{transform:translateY(-2px) scale(.99)}
+
+/* Model row */
+.mr{
+ background:#fff;border-radius:var(--r12);border:1.5px solid var(--g200);
+ box-shadow:var(--sh1);overflow:hidden;
+ transition:border-color .18s,box-shadow .18s,transform .18s;
+}
+.mr:hover{border-color:#93c5fd;box-shadow:var(--sh2);transform:translateX(3px)}
+.mr.open{border-color:#3b82f6;box-shadow:0 4px 20px rgba(59,130,246,.18)}
+
+/* Price chip */
+.pc{
+ background:#fff;border:1.5px solid var(--g200);border-radius:14px;
+ padding:14px 15px;transition:transform .16s,box-shadow .16s,border-color .16s;
+}
+.pc:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,91,255,.14);border-color:#93c5fd}
+
+/* Suggestion open btn */
+.sb{
+ margin-top:9px;background:none;border:1.5px dashed #93c5fd;border-radius:8px;
+ color:var(--bl);font-size:11px;font-weight:700;cursor:pointer;
+ display:flex;align-items:center;gap:5px;padding:6px 10px;width:100%;
+ justify-content:center;transition:background .15s,border-color .15s;
+}
+.sb:hover{background:#eff6ff;border-color:#3b82f6}
+
+/* Tags */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.tg{background:var(--gnBg);color:var(--gn)}
+.tr{background:var(--rdBg);color:var(--rd)}
+.to{background:var(--orBg);color:var(--or)}
+.tb{background:var(--bl3);color:var(--bl2)}
+
+/* ══════════════════════════════════════
+   ADMIN — LAYOUT GRAND FORMAT
+══════════════════════════════════════ */
+.admin-layout{
+  display:flex;height:100vh;
+  background:linear-gradient(150deg,#f0f4ff 0%,#e8edf8 100%);
+  font-family:'Outfit',sans-serif;overflow:hidden;
+}
+
+/* Sidebar */
+.admin-aside{
+  width:300px;
+  background:linear-gradient(180deg,#0044CC 0%,#005BFF 60%,#1a6fff 100%);
+  display:flex;flex-direction:column;flex-shrink:0;
+  box-shadow:6px 0 32px rgba(0,68,204,.25);
+  position:relative;z-index:10;
+}
+
+.admin-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+/* ── Sidebar header ── */
+.admin-aside-header{
+  padding:28px 24px 22px;
+  border-bottom:1px solid rgba(255,255,255,.15);
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.admin-aside-logo{
+  height:72px;object-fit:contain;
+  filter:brightness(0) invert(1);
+  drop-shadow:0 4px 12px rgba(0,0,0,.3);
+}
+.admin-aside-name{font-weight:800;font-size:20px;color:#fff;text-align:center;line-height:1.2}
+.admin-aside-sub{font-size:12px;color:rgba(255,255,255,.6);font-weight:500;text-align:center}
+
+/* ── Nav items ── */
+.admin-nav{padding:16px 12px;display:flex;flex-direction:column;gap:4px;flex:1}
+.admin-nav-item{
+  width:100%;text-align:left;display:flex;align-items:center;gap:14px;
+  padding:15px 18px;border-radius:14px;border:none;cursor:pointer;
+  font-family:'Outfit',sans-serif;font-size:16px;font-weight:500;
+  color:rgba(255,255,255,.75);background:transparent;
+  transition:all .18s ease;position:relative;
+}
+.admin-nav-item:hover{background:rgba(255,255,255,.12);color:#fff}
+.admin-nav-item.active{
+  background:rgba(255,255,255,.2);color:#fff;font-weight:700;
+  box-shadow:0 4px 16px rgba(0,0,0,.15);
+}
+.admin-nav-item.active::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:4px;height:28px;background:#fff;border-radius:0 4px 4px 0;
+}
+.admin-nav-badge{
+  margin-left:auto;background:#fff;color:var(--bl);
+  border-radius:20px;padding:2px 10px;font-size:12px;font-weight:800;
+}
+.admin-nav-icon{width:22px;height:22px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ── Footer sidebar ── */
+.admin-aside-footer{
+  padding:16px 12px;
+  border-top:1px solid rgba(255,255,255,.15);
+}
+.admin-exit-btn{
+  width:100%;padding:13px 18px;border-radius:14px;border:1.5px solid rgba(255,255,255,.3);
+  background:rgba(255,255,255,.1);color:#fff;font-size:15px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  font-family:'Outfit',sans-serif;transition:all .18s;
+}
+.admin-exit-btn:hover{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.5)}
+
+/* ── Admin topbar ── */
+.admin-topbar{
+  background:#fff;border-bottom:1px solid var(--g200);
+  padding:0 40px;height:72px;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;
+  box-shadow:0 2px 12px rgba(0,0,0,.05);
+}
+.admin-topbar-title{font-size:24px;font-weight:800;color:var(--g900);letter-spacing:-.5px}
+.admin-topbar-sub{font-size:14px;color:var(--g400);font-weight:500;margin-top:2px}
+
+/* ── Content area ── */
+.admin-content{flex:1;overflow-y:auto;padding:36px 40px}
+
+/* Brands tab */
+.brands-layout{display:flex;flex:1;overflow:hidden}
+.brands-sidebar{
+  width:300px;background:#fff;border-right:1px solid var(--g200);
+  overflow-y:auto;flex-shrink:0;
+}
+.brands-sidebar-header{
+  padding:20px 20px 14px;border-bottom:1px solid var(--g100);
+  display:flex;justify-content:space-between;align-items:center;
+  position:sticky;top:0;background:#fff;z-index:1;
+}
+.brands-sidebar-item{
+  display:flex;align-items:center;gap:12px;padding:16px 20px;
+  cursor:pointer;transition:all .12s;
+  border-left:4px solid transparent;
+}
+.brands-sidebar-item:hover{background:var(--g50)}
+.brands-sidebar-item.active{
+  background:var(--bl3);border-left-color:var(--bl);
+}
+.brands-content{flex:1;overflow-y:auto;padding:36px 40px}
+
+/* Model card in admin */
+.admin-model-card{
+  background:#fff;border-radius:16px;
+  border:1.5px solid var(--g200);
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
+  padding:20px 24px;display:flex;align-items:flex-start;gap:16px;
+  transition:border-color .18s,box-shadow .18s;
+}
+.admin-model-card:hover{border-color:#93c5fd;box-shadow:0 4px 24px rgba(0,91,255,.1)}
+
+/* Price chips grid */
+.prices-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+
+/* Price chip */
+.pc{
+  background:#fff;border:2px solid var(--g200);border-radius:16px;
+  padding:22px 20px;transition:transform .16s,box-shadow .16s,border-color .16s;
+}
+.pc:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,91,255,.14);border-color:#93c5fd}
+
+/* Search page */
+.public-main{max-width:100%;margin:0 auto;padding:40px 48px 80px}
+
+/* ── Admin bottom nav (mobile only) ── */
+.admin-bottomnav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--g200);z-index:200;padding:6px 0 max(6px,env(safe-area-inset-bottom));box-shadow:0 -4px 20px rgba(0,0,0,.08)}
+.admin-bottomnav-inner{display:flex;justify-content:space-around;align-items:stretch}
+.admin-bottomnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 4px;border:none;background:none;cursor:pointer;font-family:'Outfit',sans-serif;font-size:10px;font-weight:600;color:var(--g500);transition:color .15s;position:relative}
+.admin-bottomnav-btn.active{color:var(--bl)}
+.admin-bottomnav-btn .bnav-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:background .15s}
+.admin-bottomnav-btn.active .bnav-icon{background:var(--bl3)}
+.bnav-badge{position:absolute;top:2px;right:calc(50% - 20px);background:var(--bl);color:#fff;border-radius:20px;padding:0 5px;font-size:9px;font-weight:800;line-height:16px;min-width:16px;text-align:center}
+
+/* RESPONSIVE BREAKPOINTS */
+@media(max-width:900px){
+ .public-main{padding:20px 16px 80px}
+ .brands-sidebar{width:220px}
+ .brands-content{padding:16px}
+}
+
+@media(max-width:600px){
+ :root{--header-h:auto}
+
+ /* ── Header mobile compact et CENTRÉ ── */
+ .header-wrap{padding:0 12px !important}
+ .header-row{height:64px !important}
+ .header-left{width:60px !important}
+ .header-right{width:60px !important}
+ .header-logo{height:30px !important}
+ .header-sitename{font-size:18px !important;white-space:nowrap !important}
+ .header-center{gap:6px !important}
+ .header-sub{font-size:10px !important}
+ .header-retour-text{display:none !important}
+ .header-admin-text{display:none !important}
+ .header-btn{padding:8px 10px !important;font-size:12px !important;min-width:0 !important}
+
+ /* ── Barre recherche mobile ── */
+ .search-input{font-size:16px !important;padding:14px 14px 14px 46px !important;color:#0f172a !important}
+ .search-wrap{padding-bottom:12px !important}
+
+ /* ── Main mobile ── */
+ .public-main{padding:16px 12px 90px}
+
+ /* ── Titre section ── */
+ .section-title{font-size:22px !important;margin-bottom:6px !important}
+ .section-sub{font-size:13px !important;margin-bottom:20px !important}
+
+ /* ── Tuiles marques : 2 PAR RANGÉE ── */
+ .brand-grid{
+   display:grid !important;
+   grid-template-columns:1fr 1fr !important;
+   gap:12px !important;
+   justify-items:stretch !important;
+   width:100% !important;
+ }
+ .brand-tile{width:auto !important;flex-shrink:unset !important}
+ .brand-tile-zone{padding:16px 8px 12px !important}
+ .brand-tile-logo{max-width:56px !important;max-height:36px !important}
+ .brand-tile-fallback{width:48px !important;height:48px !important;font-size:20px !important}
+ .brand-tile-name{font-size:15px !important;margin-bottom:3px !important}
+ .brand-tile-info{font-size:11px !important}
+
+ /* ── Chips prix ── */
+ .prices-grid{grid-template-columns:1fr 1fr;gap:8px}
+ .pc{padding:12px 10px}
+
+ /* ── Model rows ── */
+ .mr-header{padding:14px 12px !important;min-height:56px}
+ .mr-name{font-size:14px !important}
+ .mr-chevron{width:34px !important;height:34px !important}
+
+ /* ── Admin ── */
+ .admin-aside{display:none}
+ .admin-bottomnav{display:block}
+ .admin-main{padding-bottom:72px}
+ .brands-layout{flex-direction:column}
+ .brands-sidebar{
+   width:100% !important;border-right:none !important;
+   border-bottom:1px solid var(--g200);
+   max-height:54px;overflow:hidden;flex-shrink:0;
+   transition:max-height .3s ease;
+ }
+ .brands-sidebar.open{max-height:420px;overflow-y:auto}
+ .sidebar-mobile-toggle{display:flex !important}
+ .brands-sidebar-header{display:none !important}
+ .brands-content{padding:14px !important}
+ .admin-model-row{flex-direction:column !important;gap:8px !important}
+ .admin-model-prices{flex-wrap:wrap}
+ .admin-model-actions{flex-direction:row !important;justify-content:flex-end}
+ .req-card-body{flex-direction:column !important}
+ .req-card-actions{flex-direction:row !important;justify-content:flex-end;flex-wrap:wrap}
+}
+`;
+
+/* ─────────────────────────────────────────
+  ICONS
+───────────────────────────────────────── */
+const I = (c,s=16,w=2) =>
+ <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+   strokeWidth={w} strokeLinecap="round" strokeLinejoin="round">{c}</svg>;
+
+const ISearch  = ({s=16}) => I(<><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>,s);
+const ILock    = ({s=16}) => I(<><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></>,s);
+const IBell    = ({s=16}) => I(<><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>,s);
+const IPlus    = ({s=16}) => I(<><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></>,s,2.5);
+const ITrash   = ({s=15}) => I(<><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4h6v2"/></>,s);
+const IEdit    = ({s=15}) => I(<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,s);
+const ICheck   = ({s=16}) => I(<polyline points="20 6 9 17 4 12"/>,s,2.5);
+const IX       = ({s=16}) => I(<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>,s);
+const IChevD   = ({s=16}) => I(<polyline points="6 9 12 15 18 9"/>,s);
+const IGrid    = ({s=16}) => I(<><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></>,s);
+const ISettings= ({s=16}) => I(<><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></>,s);
+const IEye     = ({s=16}) => I(<><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>,s);
+const IBack    = ({s=16}) => I(<><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></>,s);
+const IArrowU  = ({s=13}) => I(<polyline points="18 15 12 9 6 15"/>,s,2.5);
+const IArrowD  = ({s=13}) => I(<polyline points="6 9 12 15 18 9"/>,s,2.5);
+
+/* ─────────────────────────────────────────
+  BTN
+───────────────────────────────────────── */
+function Btn({children,variant="primary",size="md",full,disabled,onClick,style:s={}}){
+ const V={
+   primary:  {bg:"var(--bl)",   c:"#fff",       b:"none"},
+   secondary:{bg:"var(--g100)", c:"var(--g700)", b:"none"},
+   outline:  {bg:"transparent", c:"var(--bl)",   b:"1.5px solid var(--bl)"},
+   danger:   {bg:"var(--rdBg)", c:"var(--rd)",   b:"none"},
+   success:  {bg:"var(--gnBg)", c:"var(--gn)",   b:"none"},
+   ghost:    {bg:"transparent", c:"var(--g500)", b:"none"},
+   white:    {bg:"#fff",        c:"var(--bl)",   b:"1px solid var(--g200)"},
+ };
+ const S={
+   sm:{p:"5px 10px", fs:"12px", r:"7px",  fw:600},
+   md:{p:"8px 16px", fs:"13px", r:"9px",  fw:600},
+   lg:{p:"11px 22px",fs:"14px", r:"11px", fw:700},
+ };
+ const v=V[variant]||V.primary, sz=S[size]||S.md;
+ return(
+   <button disabled={disabled} onClick={onClick} style={{
+     display:"inline-flex",alignItems:"center",gap:"6px",
+     padding:sz.p,fontSize:sz.fs,borderRadius:sz.r,fontWeight:sz.fw,
+     background:v.bg,color:v.c,border:v.b,
+     width:full?"100%":"auto",justifyContent:full?"center":"flex-start",
+     opacity:disabled?.4:1,whiteSpace:"nowrap",flexShrink:0,
+     cursor:disabled?"not-allowed":"pointer",transition:"opacity .15s,transform .12s",...s
+   }}
+   onMouseDown={e=>{if(!disabled)e.currentTarget.style.transform="scale(.96)"}}
+   onMouseUp={e=>e.currentTarget.style.transform="scale(1)"}
+   onMouseLeave={e=>e.currentTarget.style.transform="scale(1)"}
+> {children}</button>
+ );
+}
+
+/* ─────────────────────────────────────────
+  MODAL
+───────────────────────────────────────── */
+function Modal({title,onClose,children,width=520}){
+ return(
+   <div style={{position:"fixed",inset:0,background:"rgba(15,27,45,.65)",backdropFilter:"blur(12px)",
+     zIndex:2000,display:"flex",alignItems:"center",justifyContent:"center",padding:"16px"}}
+     onClick={e=>e.target===e.currentTarget&&onClose()}>
+     <div className="aS" style={{background:"#fff",borderRadius:"var(--r24)",width:"100%",maxWidth:width,
+       maxHeight:"90vh",display:"flex",flexDirection:"column",boxShadow:"0 32px 100px rgba(0,0,0,.28)"}}>
+       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",
+         padding:"20px 24px 16px",borderBottom:"1px solid var(--g100)"}}>
+         <h3 style={{fontSize:"16px",fontWeight:700}}>{title}</h3>
+         <button onClick={onClose} style={{background:"var(--g100)",border:"none",borderRadius:"8px",
+           padding:"6px 7px",display:"flex",cursor:"pointer"}}><IX/></button>
+       </div>
+       <div style={{overflowY:"auto",padding:"20px 24px 24px",flex:1}}>{children}</div>
+     </div>
+   </div>
+ );
+}
+
+/* ─────────────────────────────────────────
+  FIELD
+───────────────────────────────────────── */
+function Field({label,hint,...props}){
+ return(
+   <div style={{marginBottom:"14px"}}>
+     {label&&<label style={{display:"block",fontSize:"11px",fontWeight:700,color:"var(--g500)",
+       textTransform:"uppercase",letterSpacing:".6px",marginBottom:"5px"}}>{label}</label>}
+     {hint&&<p style={{fontSize:"11px",color:"var(--g400)",marginBottom:"5px"}}>{hint}</p>}
+     <input {...props} style={{width:"100%",background:"var(--g50)",border:"1.5px solid var(--g200)",
+       borderRadius:"9px",padding:"9px 12px",fontSize:"14px",color:"var(--g900)",outline:"none",
+       boxSizing:"border-box",...props.style}}/>
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  SUGGESTION FORM
+═══════════════════════════════════════════ */
+function SuggestionForm({brandId,brandName,modelId,modelName,repairTypeId,repairTypeLabel,currentPrice,onSuggest}){
+ const [open,   setOpen]   = useState(false);
+ const [name,   setName]   = useState("");
+ const [price,  setPrice]  = useState("");
+ const [comment,setComment]= useState("");
+ const [status, setStatus] = useState("idle");
+
+ function reset(){
+   setName(""); setPrice(""); setComment(""); setStatus("idle"); setOpen(false);
+ }
+
+ function handleSend(){
+   if(!name.trim()){ setStatus("error"); return; }
+   const req = {
+     id: uid(),
+     date: new Date().toISOString(),
+     status: "pending",
+     senderName: name.trim(),
+     suggestedPrice: price.trim() !== "" ? Number(price) : null,
+     comment: comment.trim(),
+     brandId, brandName,
+     modelId, modelName,
+     repairTypeId, repairTypeLabel,
+     currentPrice,
+   };
+   onSuggest(req);
+   setStatus("sent");
+   setTimeout(reset, 2400);
+ }
+
+ if(!open) return(
+   <button className="sb" onClick={()=>setOpen(true)}>
+     ✏️ Suggérer un prix
+   </button>
+ );
+
+ if(status==="sent") return(
+   <div style={{marginTop:"10px",padding:"11px 14px",background:"var(--gnBg)",borderRadius:"10px",
+     color:"var(--gn)",fontSize:"12px",fontWeight:700,textAlign:"center"}}>
+     ✅ Demande envoyée !
+   </div>
+ );
+
+ return(
+   <div className="aI" style={{marginTop:"10px",background:"var(--bl3)",borderRadius:"12px",
+     padding:"14px",border:"1.5px solid var(--bl4)"}}>
+     <p style={{fontSize:"12px",fontWeight:800,color:"var(--bl2)",marginBottom:"10px"}}>
+       💬 Suggérer une modification de prix
+     </p>
+     <div style={{marginBottom:"8px"}}>
+       <input value={name} onChange={e=>{setName(e.target.value);setStatus("idle");}}
+         placeholder="Votre nom *"
+         style={{width:"100%",border:`1.5px solid ${status==="error"&&!name.trim()?"var(--rd)":"var(--bl4)"}`,
+           borderRadius:"8px",padding:"8px 10px",fontSize:"12px",background:"#fff",
+           color:"var(--g900)",outline:"none",boxSizing:"border-box"}}/>
+       {status==="error"&&!name.trim()&&(
+         <p style={{color:"var(--rd)",fontSize:"11px",marginTop:"3px",fontWeight:600}}>⚠ Nom obligatoire</p>
+       )}
+     </div>
+     <input type="number" value={price} onChange={e=>setPrice(e.target.value)}
+       placeholder={`Prix suggéré €  (actuel : ${currentPrice!=null?currentPrice+"€":"—"})`}
+       style={{width:"100%",border:"1.5px solid var(--bl4)",borderRadius:"8px",padding:"8px 10px",
+         fontSize:"12px",background:"#fff",color:"var(--g900)",outline:"none",
+         boxSizing:"border-box",marginBottom:"8px"}}/>
+     <textarea value={comment} onChange={e=>setComment(e.target.value)}
+       placeholder="Commentaire / motif de la demande…" rows={3}
+       style={{width:"100%",border:"1.5px solid var(--bl4)",borderRadius:"8px",padding:"8px 10px",
+         fontSize:"12px",background:"#fff",color:"var(--g900)",outline:"none",
+         boxSizing:"border-box",resize:"vertical",fontFamily:"'Outfit',sans-serif",marginBottom:"10px"}}/>
+     <div style={{display:"flex",gap:"8px"}}>
+       <Btn size="sm" onClick={handleSend}><ICheck/> Envoyer</Btn>
+       <Btn size="sm" variant="ghost" onClick={reset}>Annuler</Btn>
+     </div>
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  PRIX GRILLE
+═══════════════════════════════════════════ */
+function PricesGrid({model,brand,repairTypes,onSuggest}){
+ return(
+   <div className="aI" style={{padding:"18px 20px 24px",borderTop:"2px solid var(--g100)"}}>
+     <div className="prices-grid">
+       {repairTypes.map(rt=>{
+         const price = model.prices[rt.id];
+         return(
+           <div key={rt.id} className="pc">
+             <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"9px"}}>
+               <span style={{fontSize:"28px",lineHeight:1}}>{rt.icon}</span>
+               <span style={{fontSize:"13px",fontWeight:700,color:"var(--g500)",lineHeight:1.2}}>{rt.label}</span>
+             </div>
+             <div style={{fontSize:"34px",fontWeight:900,letterSpacing:"-1.5px",lineHeight:1,
+               color:price!=null?"var(--bl)":"var(--g300)",fontFamily:"'DM Mono',monospace"}}>
+               {price!=null?`${price}€`:"—"}
+             </div>
+             <SuggestionForm
+               brandId={brand.id} brandName={brand.name}
+               modelId={model.id} modelName={model.name}
+               repairTypeId={rt.id} repairTypeLabel={rt.label}
+               currentPrice={price} onSuggest={onSuggest}
+             />
+           </div>
+         );
+       })}
+     </div>
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  MODEL ROW
+═══════════════════════════════════════════ */
+function ModelRow({model,brand,repairTypes,onSuggest,delay=0}){
+ const [open,setOpen] = useState(false);
+ const vals  = Object.values(model.prices).filter(v=>v!=null);
+ const minP  = vals.length ? Math.min(...vals) : null;
+
+ return(
+   <div className={`mr aU${open?" open":""}`} style={{animationDelay:`${delay}s`}}>
+     <div className="mr-header" onClick={()=>setOpen(o=>!o)}
+       style={{padding:"18px 24px",display:"flex",alignItems:"center",
+         justifyContent:"space-between",cursor:"pointer",userSelect:"none",
+         background:open?"#ebf1ff":"#fff",transition:"background .2s",minHeight:"64px"}}>
+       <div style={{display:"flex",alignItems:"center",gap:"14px"}}>
+         <div style={{width:"10px",height:"10px",borderRadius:"50%",flexShrink:0,
+           background:open?"var(--bl)":"var(--g300)",transition:"background .2s"}}/>
+         <span className="mr-name" style={{fontWeight:700,fontSize:"16px",color:"var(--g900)"}}>{model.name}</span>
+       </div>
+       <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+         {minP!=null&&!open&&(
+           <span style={{fontSize:"14px",color:"var(--g400)",fontWeight:500,
+             fontFamily:"'DM Mono',monospace"}}>dès {minP}€</span>
+         )}
+         <div className="mr-chevron" style={{width:"38px",height:"38px",borderRadius:"10px",display:"flex",
+           alignItems:"center",justifyContent:"center",transition:"all .2s",
+           background:open?"var(--bl)":"var(--g100)",color:open?"#fff":"var(--g500)",
+           transform:open?"rotate(180deg)":"none"}}>
+           <IChevD/>
+         </div>
+       </div>
+     </div>
+     {open&&(
+       <PricesGrid model={model} brand={brand} repairTypes={repairTypes} onSuggest={onSuggest}/>
+     )}
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  PUBLIC VIEW
+═══════════════════════════════════════════ */
+function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
+ const [screen, setScreen] = useState("brands");
+ const [brandId,setBrandId] = useState(null);
+ const [search, setSearch]  = useState("");
+
+ const brand = brands.find(b=>b.id===brandId);
+
+ const searchResults = search.trim().length>1
+   ? brands.flatMap(b=>
+       [...b.models].sort((a,x)=>a.order-x.order)
+         .filter(m=>m.name.toLowerCase().includes(search.toLowerCase()))
+         .map(m=>({model:m,brand:b}))
+     )
+   : [];
+
+ function openBrand(id){
+   setBrandId(id); setScreen("models"); setSearch("");
+   window.scrollTo({top:0,behavior:"smooth"});
+ }
+ function goBack(){
+   setScreen("brands"); setBrandId(null);
+ }
+
+ return(
+   <div style={{minHeight:"100vh",background:"#eef2f7"}}>
+     <style>{CSS}</style>
+
+     {/* ── HEADER ── */}
+     <header style={{background:"var(--bl)",boxShadow:"0 2px 28px rgba(0,91,255,.38)",
+       position:"sticky",top:0,zIndex:100,overflow:"hidden"}}>
+       <div className="header-wrap" style={{maxWidth:"100%",margin:"0 auto",padding:"0 40px",boxSizing:"border-box"}}>
+
+         {/* Ligne principale */}
+         <div className="header-row" style={{display:"flex",alignItems:"center",
+           justifyContent:"space-between",height:"108px",gap:"8px"}}>
+
+           {/* Gauche */}
+           <div className="header-left" style={{width:"130px",flexShrink:0,minWidth:0}}>
+             {screen==="models"&&(
+               <button onClick={goBack} style={{background:"rgba(255,255,255,.18)",
+                 border:"1px solid rgba(255,255,255,.25)",borderRadius:"10px",color:"#fff",
+                 padding:"10px 14px",cursor:"pointer",display:"flex",alignItems:"center",
+                 gap:"8px",fontSize:"14px",fontWeight:600,whiteSpace:"nowrap",
+                 maxWidth:"100%",overflow:"hidden"}}>
+                 <IBack/>
+                 <span className="header-retour-text">Retour</span>
+               </button>
+             )}
+           </div>
+
+           {/* Centre */}
+           <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",
+             gap:"3px",minWidth:0,overflow:"hidden"}}>
+             <div className="header-center" style={{display:"flex",alignItems:"center",
+               gap:"14px",maxWidth:"100%"}}>
+               <img className="header-logo" src="/care-logo.png" alt="Care"
+                 style={{height:"78px",objectFit:"contain",filter:"brightness(0) invert(1)",flexShrink:0}}
+                 onError={e=>e.target.style.display="none"}/>
+               <div className="header-sitename"
+                 style={{fontWeight:900,fontSize:"40px",color:"#fff",letterSpacing:"-.8px",
+                   whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>
+                 {siteName}
+               </div>
+             </div>
+             <div className="header-sub"
+               style={{fontSize:"15px",color:"rgba(255,255,255,.75)",fontWeight:500,textAlign:"center",whiteSpace:"nowrap"}}>
+               {screen==="models"&&brand
+                 ? <><span style={{opacity:.7}}>Marques</span>{" › "}<span style={{fontWeight:700}}>{brand.name}</span></>
+                 : "Tarifs de réparation smartphone"}
+             </div>
+           </div>
+
+           {/* Droite */}
+           <div className="header-right" style={{width:"130px",flexShrink:0,display:"flex",justifyContent:"flex-end",minWidth:0}}>
+             <button className="header-btn" onClick={onAdminClick}
+               style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.25)",
+                 borderRadius:"12px",color:"#fff",padding:"12px 22px",fontSize:"14px",fontWeight:700,
+                 display:"flex",alignItems:"center",gap:"8px",cursor:"pointer",whiteSpace:"nowrap"}}>
+               <ILock/>
+               <span className="header-admin-text">Admin</span>
+             </button>
+           </div>
+         </div>
+
+         {/* Barre de recherche */}
+         <div className="search-wrap" style={{paddingBottom:"20px"}}>
+           <div style={{position:"relative"}}>
+             <span style={{position:"absolute",left:"18px",top:"50%",transform:"translateY(-50%)",
+               color:"var(--g400)",pointerEvents:"none",display:"flex"}}><ISearch s={22}/></span>
+             <input className="search-input" value={search} onChange={e=>setSearch(e.target.value)}
+               placeholder="Rechercher un modèle parmi toutes les marques…"
+               style={{width:"100%",background:"rgba(255,255,255,.95)",
+                 border:"2px solid rgba(255,255,255,.5)",borderRadius:"14px",
+                 padding:"17px 20px 17px 56px",fontSize:"17px",color:"#0f172a",
+                 outline:"none",boxSizing:"border-box",
+                 boxShadow:"0 4px 20px rgba(0,0,0,.15)"}}
+               onFocus={e=>{e.target.style.background="#fff";e.target.style.boxShadow="0 4px 28px rgba(0,0,0,.22)"}}
+               onBlur={e=>{e.target.style.background="rgba(255,255,255,.95)";e.target.style.boxShadow="0 4px 20px rgba(0,0,0,.15)"}}
+             />
+           </div>
+         </div>
+       </div>
+     </header>
+
+     {/* ── MAIN ── */}
+     <main className="public-main">
+
+       {/* Résultats recherche */}
+       {search.trim().length>1&&(
+         <div className="aI">
+           <p style={{color:"var(--g500)",fontSize:"13px",marginBottom:"18px",fontWeight:500}}>
+             {searchResults.length} résultat{searchResults.length!==1?"s":""} pour{" "}
+             <strong>« {search} »</strong>
+           </p>
+           {searchResults.length===0
+             ? <div style={{textAlign:"center",padding:"60px 0",color:"var(--g400)"}}>
+                 <div style={{fontSize:"48px",marginBottom:"12px"}}>🔍</div>
+                 <p style={{fontWeight:600,fontSize:"15px"}}>Aucun modèle trouvé</p>
+               </div>
+             : <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+                 {searchResults.map(({model,brand:b},i)=>(
+                   <div key={model.id} className="aU" style={{animationDelay:`${i*0.022}s`}}>
+                     <div style={{display:"inline-flex",alignItems:"center",gap:"7px",
+                       background:"var(--bl3)",borderRadius:"7px",padding:"4px 12px",marginBottom:"5px"}}>
+                       <img src={b.logo} alt="" style={{height:"15px",objectFit:"contain"}}
+                         onError={e=>e.target.style.display="none"}/>
+                       <span style={{fontSize:"11px",fontWeight:700,color:"var(--bl2)"}}>{b.name}</span>
+                     </div>
+                     <ModelRow model={model} brand={b} repairTypes={repairTypes}
+                       onSuggest={onSuggest} delay={i*0.022}/>
+                   </div>
+                 ))}
+               </div>
+           }
+         </div>
+       )}
+
+       {/* Grille marques */}
+       {!search.trim()&&screen==="brands"&&(
+         <div className="aI" style={{textAlign:"center"}}>
+           <h2 className="section-title" style={{fontSize:"36px",fontWeight:800,color:"var(--g800)",marginBottom:"10px"}}>
+             Choisissez votre marque
+           </h2>
+           <p className="section-sub" style={{fontSize:"17px",color:"var(--g400)",marginBottom:"40px"}}>
+             Cliquez sur une marque pour explorer ses modèles et tarifs.
+           </p>
+           <div className="brand-grid" style={{
+             display:"flex",flexWrap:"wrap",justifyContent:"center",gap:"28px",boxSizing:"border-box"
+           }}>
+             {brands.map((b,i)=>(
+               <div key={b.id} className="bt aU brand-tile"
+                 style={{animationDelay:`${i*0.06}s`,width:"300px",flexShrink:0,minWidth:0}}
+                 onClick={()=>openBrand(b.id)}
+                 onMouseEnter={e=>e.currentTarget.style.borderColor=b.accent||"var(--bl)"}
+                 onMouseLeave={e=>e.currentTarget.style.borderColor="transparent"}>
+                 <div className="brand-tile-zone" style={{background:b.bgGrad,padding:"40px 24px 32px",
+                   display:"flex",flexDirection:"column",alignItems:"center",gap:"12px"}}>
+                   <div style={{width:"130px",height:"84px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                     <img src={b.logo} alt={b.name}
+                       className="brand-tile-logo"
+                       style={{maxWidth:"130px",maxHeight:"80px",objectFit:"contain",
+                         filter:"drop-shadow(0 2px 10px rgba(0,0,0,.15))"}}
+                       onError={e=>{e.target.style.display="none";e.target.nextSibling.style.display="flex";}}
+                     />
+                     <div className="brand-tile-fallback" style={{display:"none",width:"72px",height:"72px",background:b.accent||"var(--bl)",
+                       borderRadius:"18px",alignItems:"center",justifyContent:"center",
+                       fontSize:"32px",fontWeight:900,color:"#fff"}}>
+                       {b.name[0]}
+                     </div>
+                   </div>
+                 </div>
+                 <div style={{background:"#fff",padding:"20px 24px 22px",
+                   borderTop:`4px solid ${b.accent||"var(--bl)"}`,textAlign:"left"}}>
+                   <div className="brand-tile-name" style={{fontWeight:800,fontSize:"21px",color:"var(--g900)",marginBottom:"6px"}}>
+                     {b.name}
+                   </div>
+                   <div className="brand-tile-info" style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                     <span style={{fontSize:"14px",color:"var(--g400)"}}>
+                       {b.models.length} modèle{b.models.length>1?"s":""}
+                     </span>
+                     <span style={{fontSize:"14px",fontWeight:800,color:b.accent||"var(--bl)"}}>
+                       Voir →
+                     </span>
+                   </div>
+                 </div>
+               </div>
+             ))}
+           </div>
+         </div>
+       )}
+
+       {/* Liste modèles d'une marque */}
+       {!search.trim()&&screen==="models"&&brand&&(
+         <div className="aI">
+           <div style={{display:"flex",alignItems:"center",gap:"20px",marginBottom:"28px",
+             background:"#fff",borderRadius:"var(--r16)",padding:"24px 28px",
+             boxShadow:"var(--sh2)",borderLeft:`6px solid ${brand.accent||"var(--bl)"}`,flexWrap:"wrap"}}>
+             <div style={{width:"88px",height:"60px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+               <img src={brand.logo} alt={brand.name}
+                 style={{maxWidth:"88px",maxHeight:"58px",objectFit:"contain"}}
+                 onError={e=>e.target.style.display="none"}/>
+             </div>
+             <div style={{flex:1,minWidth:"140px"}}>
+               <h2 style={{fontWeight:800,fontSize:"26px",color:"var(--g900)"}}>{brand.name}</h2>
+               <p style={{color:"var(--g400)",fontSize:"15px",marginTop:"4px"}}>
+                 {brand.models.length} modèle{brand.models.length>1?"s":" disponible"} — cliquez pour afficher les tarifs
+               </p>
+             </div>
+             <button onClick={goBack} style={{background:"var(--g100)",border:"none",borderRadius:"12px",
+               padding:"12px 20px",fontSize:"14px",fontWeight:700,color:"var(--g600)",
+               cursor:"pointer",display:"flex",alignItems:"center",gap:"8px"}}>
+               <IBack/> Marques
+             </button>
+           </div>
+
+           <div style={{display:"flex",flexDirection:"column",gap:"8px"}}>
+             {[...brand.models].sort((a,b)=>a.order-b.order).map((m,i)=>(
+               <ModelRow key={m.id} model={m} brand={brand}
+                 repairTypes={repairTypes} onSuggest={onSuggest} delay={i*0.024}/>
+             ))}
+           </div>
+         </div>
+       )}
+     </main>
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  ADMIN — ONGLET MARQUES & MODÈLES
+═══════════════════════════════════════════ */
+const RT_KEYS   = ["ecran_o","ecran_c","batterie","dock","chassis","cam_av","cam_ar"];
+const RT_ICONS  = {ecran_o:"📱",ecran_c:"🖥️",batterie:"🔋",dock:"⚡",chassis:"🔲",cam_av:"🤳",cam_ar:"📷"};
+const RT_LABELS = {ecran_o:"Écran Origine",ecran_c:"Écran Compat.",batterie:"Batterie",dock:"Dock",chassis:"Châssis/Vitre",cam_av:"Cam. avant",cam_ar:"Cam. arrière"};
+
+function AdminBrandsTab({brands,setBrands}){
+ const [activeBrandId,setActiveBrandId] = useState(brands[0]?.id||null);
+ const [modal,setModal] = useState(null);
+ const [form, setForm]  = useState({});
+ const [sidebarOpen, setSidebarOpen] = useState(false);
+
+ const brand  = brands.find(b=>b.id===activeBrandId);
+ const sorted = brand?[...brand.models].sort((a,b)=>a.order-b.order):[];
+
+ function saveBrand(){
+   if(!form.name?.trim())return;
+   if(modal.type==="addBrand"){
+     setBrands(bs=>[...bs,{id:uid(),name:form.name.trim(),logo:form.logo||"",
+       accent:form.accent||"#005BFF",bgGrad:`linear-gradient(135deg,#f0f4ff,#dbeafe)`,models:[]}]);
+   } else {
+     setBrands(bs=>bs.map(b=>b.id===modal.data.id
+       ?{...b,name:form.name||b.name,logo:form.logo??b.logo,accent:form.accent||b.accent}:b));
+   }
+   setModal(null);
+ }
+ function deleteBrand(id){
+   if(!confirm("Supprimer cette marque et tous ses modèles ?"))return;
+   setBrands(bs=>bs.filter(b=>b.id!==id));
+   if(activeBrandId===id) setActiveBrandId(brands.find(b=>b.id!==id)?.id||null);
+ }
+ function saveModel(){
+   if(!form.name?.trim())return;
+   if(modal.type==="addModel"){
+     const m={id:uid(),name:form.name.trim(),order:(brand.models.length)+1,
+       prices:Object.fromEntries(RT_KEYS.map(k=>[k,null]))};
+     setBrands(bs=>bs.map(b=>b.id===activeBrandId?{...b,models:[...b.models,m]}:b));
+   } else {
+     const np={};
+     RT_KEYS.forEach(k=>{const v=form[k]; np[k]=(v===""||v===undefined||v===null)?null:Number(v);});
+     setBrands(bs=>bs.map(b=>b.id===activeBrandId
+       ?{...b,models:b.models.map(m=>m.id===modal.data.id?{...m,name:form.name||m.name,prices:np}:m)}:b));
+   }
+   setModal(null);
+ }
+ function deleteModel(mid){
+   setBrands(bs=>bs.map(b=>b.id===activeBrandId?{...b,models:b.models.filter(m=>m.id!==mid)}:b));
+ }
+ function moveModel(mid,dir){
+   setBrands(bs=>bs.map(b=>{
+     if(b.id!==activeBrandId)return b;
+     const s=[...b.models].sort((a,x)=>a.order-x.order);
+     const i=s.findIndex(m=>m.id===mid),ni=i+dir;
+     if(ni<0||ni>=s.length)return b;
+     [s[i],s[ni]]=[s[ni],s[i]];
+     return{...b,models:s.map((m,idx)=>({...m,order:idx+1}))};
+   }));
+ }
+
+ function selectBrand(id){
+   setActiveBrandId(id);
+   setSidebarOpen(false);
+ }
+
+ const SidebarContent = () => (
+   <>
+     <div className="brands-sidebar-header">
+       <span style={{fontSize:"13px",fontWeight:800,color:"var(--g500)",textTransform:"uppercase",letterSpacing:".8px"}}>
+         Marques
+       </span>
+       <Btn size="sm" onClick={()=>{setForm({});setModal({type:"addBrand"})}}>
+         <IPlus/> Ajouter
+       </Btn>
+     </div>
+     {brands.map(b=>(
+       <div key={b.id}
+         className={`brands-sidebar-item${activeBrandId===b.id?" active":""}`}
+         onClick={()=>selectBrand(b.id)}>
+         <div style={{width:"44px",height:"36px",display:"flex",alignItems:"center",
+           justifyContent:"center",flexShrink:0,background:"var(--g50)",
+           borderRadius:"8px",padding:"4px"}}>
+           {b.logo
+             ?<img src={b.logo} alt="" style={{maxWidth:"40px",maxHeight:"30px",objectFit:"contain"}}
+                onError={e=>e.target.style.opacity="0"}/>
+             :<span style={{fontSize:"18px",fontWeight:800,color:"var(--bl)"}}>{b.name[0]}</span>}
+         </div>
+         <div style={{flex:1,minWidth:0}}>
+           <div style={{fontWeight:700,fontSize:"15px",overflow:"hidden",textOverflow:"ellipsis",
+             whiteSpace:"nowrap",color:activeBrandId===b.id?"var(--bl)":"var(--g800)",
+             letterSpacing:"-.2px"}}>{b.name}</div>
+           <div style={{fontSize:"12px",color:"var(--g400)",marginTop:"1px"}}>{b.models.length} modèles</div>
+         </div>
+         <div style={{display:"flex",gap:"6px",flexShrink:0}}>
+           <button onClick={e=>{e.stopPropagation();setForm({name:b.name,logo:b.logo||"",accent:b.accent||"#005BFF"});setModal({type:"editBrand",data:b});}}
+             style={{background:"var(--g100)",border:"none",color:"var(--g600)",cursor:"pointer",
+               padding:"8px 10px",display:"flex",borderRadius:"8px",alignItems:"center",
+               minWidth:"36px",justifyContent:"center"}}
+           ><IEdit/></button>
+           <button onClick={e=>{e.stopPropagation();deleteBrand(b.id);}}
+             style={{background:"var(--rdBg)",border:"none",color:"var(--rd)",cursor:"pointer",
+               padding:"8px 10px",display:"flex",borderRadius:"8px",alignItems:"center",
+               minWidth:"36px",justifyContent:"center"}}
+           ><ITrash/></button>
+         </div>
+       </div>
+     ))}
+   </>
+ );
+
+ return(
+   <div className="brands-layout">
+     {/* Sidebar marques — avec toggle mobile */}
+     <div className={`brands-sidebar${sidebarOpen?" open":""}`}>
+       {/* Bouton toggle visible uniquement sur mobile */}
+       <div className="sidebar-mobile-toggle" onClick={()=>setSidebarOpen(o=>!o)}
+         style={{display:"none",padding:"14px 16px",background:"var(--bl)",color:"#fff",
+           cursor:"pointer",alignItems:"center",justifyContent:"space-between",
+           fontSize:"15px",fontWeight:700,gap:"8px"}}>
+         <span>📱 {brands.find(b=>b.id===activeBrandId)?.name||"Choisir une marque"}</span>
+         <span style={{transform:sidebarOpen?"rotate(180deg)":"none",transition:"transform .2s",display:"flex"}}>
+           <IChevD s={18}/>
+         </span>
+       </div>
+       <SidebarContent/>
+     </div>
+
+     {/* Zone contenu */}
+     <div className="brands-content">
+       {brand?(
+         <>
+           {/* Header marque */}
+           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",
+             marginBottom:"28px",flexWrap:"wrap",gap:"16px"}}>
+             <div style={{display:"flex",alignItems:"center",gap:"16px"}}>
+               <div style={{width:"56px",height:"56px",background:"var(--g100)",borderRadius:"14px",
+                 display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
+                 {brand.logo
+                   ?<img src={brand.logo} alt="" style={{maxWidth:"48px",maxHeight:"44px",objectFit:"contain"}} onError={e=>e.target.style.display="none"}/>
+                   :<span style={{fontSize:"22px",fontWeight:800,color:"var(--bl)"}}>{brand.name[0]}</span>}
+               </div>
+               <div>
+                 <h2 style={{fontWeight:800,fontSize:"26px",color:"var(--g900)",letterSpacing:"-.5px"}}>{brand.name}</h2>
+                 <p style={{color:"var(--g400)",fontSize:"15px",marginTop:"2px"}}>{brand.models.length} modèles</p>
+               </div>
+             </div>
+             <Btn size="lg" onClick={()=>{setForm({name:""});setModal({type:"addModel"})}}>
+               <IPlus/> Ajouter un modèle
+             </Btn>
+           </div>
+
+           {/* Liste modèles — cards grand format */}
+           <div style={{display:"flex",flexDirection:"column",gap:"12px"}}>
+             {sorted.map((m,idx)=>(
+               <div key={m.id} className="admin-model-card admin-model-row">
+                 {/* Ordre */}
+                 <div style={{display:"flex",flexDirection:"column",gap:"4px",paddingTop:"2px",flexShrink:0}}>
+                   <button onClick={()=>moveModel(m.id,-1)} disabled={idx===0}
+                     style={{background:"var(--g100)",border:"none",borderRadius:"8px",
+                       padding:"7px 8px",cursor:idx===0?"default":"pointer",
+                       opacity:idx===0?.3:1,display:"flex",transition:"background .12s"}}
+                     onMouseEnter={e=>{if(idx!==0)e.currentTarget.style.background="var(--bl3)"}}
+                     onMouseLeave={e=>e.currentTarget.style.background="var(--g100)"}
+                   ><IArrowU/></button>
+                   <button onClick={()=>moveModel(m.id,1)} disabled={idx===sorted.length-1}
+                     style={{background:"var(--g100)",border:"none",borderRadius:"8px",
+                       padding:"7px 8px",cursor:idx===sorted.length-1?"default":"pointer",
+                       opacity:idx===sorted.length-1?.3:1,display:"flex",transition:"background .12s"}}
+                     onMouseEnter={e=>{if(idx!==sorted.length-1)e.currentTarget.style.background="var(--bl3)"}}
+                     onMouseLeave={e=>e.currentTarget.style.background="var(--g100)"}
+                   ><IArrowD/></button>
+                 </div>
+
+                 {/* Infos modèle */}
+                 <div style={{flex:1,minWidth:0}}>
+                   <div style={{fontWeight:700,fontSize:"18px",color:"var(--g900)",marginBottom:"12px",
+                     letterSpacing:"-.3px"}}>{m.name}</div>
+                   <div className="admin-model-prices" style={{display:"flex",flexWrap:"wrap",gap:"8px"}}>
+                     {RT_KEYS.map(k=>(
+                       <span key={k} style={{
+                         fontSize:"13px",borderRadius:"10px",padding:"5px 12px",
+                         fontFamily:"'DM Mono',monospace",fontWeight:500,
+                         background:m.prices[k]!=null?"var(--bl3)":"var(--g100)",
+                         color:m.prices[k]!=null?"var(--bl2)":"var(--g400)",
+                         border:m.prices[k]!=null?"1px solid var(--bl4)":"1px solid transparent",
+                       }}>
+                         {RT_ICONS[k]} {m.prices[k]!=null?`${m.prices[k]}€`:"—"}
+                       </span>
+                     ))}
+                   </div>
+                 </div>
+
+                 {/* Actions */}
+                 <div className="admin-model-actions" style={{display:"flex",gap:"8px",flexShrink:0}}>
+                   <Btn size="md" variant="secondary" onClick={()=>{
+                     const f={name:m.name};
+                     RT_KEYS.forEach(k=>f[k]=m.prices[k]!=null?String(m.prices[k]):"");
+                     setForm(f); setModal({type:"editModel",data:m});
+                   }}><IEdit/> Modifier</Btn>
+                   <Btn size="md" variant="danger" onClick={()=>deleteModel(m.id)}><ITrash/></Btn>
+                 </div>
+               </div>
+             ))}
+           </div>
+         </>
+       ):(
+         <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+           height:"100%",color:"var(--g400)",gap:"12px"}}>
+           <div style={{fontSize:"56px"}}>👈</div>
+           <p style={{fontWeight:600,fontSize:"18px",color:"var(--g500)"}}>Sélectionnez une marque</p>
+           <p style={{fontSize:"14px"}}>dans la liste à gauche</p>
+         </div>
+       )}
+     </div>
+
+     {/* Modals */}
+     {(modal?.type==="addBrand"||modal?.type==="editBrand")&&(
+       <Modal title={modal.type==="addBrand"?"Nouvelle marque":"Modifier la marque"} onClose={()=>setModal(null)}>
+         <Field label="Nom *" value={form.name||""} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="ex: OnePlus"/>
+         <Field label="URL du logo" value={form.logo||""} onChange={e=>setForm(f=>({...f,logo:e.target.value}))} placeholder="https://…" hint="Lien direct vers PNG ou SVG"/>
+         {form.logo&&<img src={form.logo} alt="" style={{height:"36px",objectFit:"contain",marginBottom:"14px"}} onError={e=>e.target.style.display="none"}/>}
+         <div style={{marginBottom:"14px"}}>
+           <label style={{display:"block",fontSize:"11px",fontWeight:700,color:"var(--g500)",textTransform:"uppercase",letterSpacing:".6px",marginBottom:"5px"}}>Couleur accent</label>
+           <input type="color" value={form.accent||"#005BFF"} onChange={e=>setForm(f=>({...f,accent:e.target.value}))}
+             style={{width:"100%",height:"42px",border:"1.5px solid var(--g200)",borderRadius:"9px",padding:"4px 8px",cursor:"pointer"}}/>
+         </div>
+         <Btn full onClick={saveBrand} disabled={!form.name?.trim()}>
+           <ICheck/> {modal.type==="addBrand"?"Créer la marque":"Enregistrer"}
+         </Btn>
+       </Modal>
+     )}
+
+     {(modal?.type==="addModel"||modal?.type==="editModel")&&(
+       <Modal title={modal.type==="addModel"?"Nouveau modèle":"Modifier le modèle"} onClose={()=>setModal(null)} width={620}>
+         <Field label="Nom du modèle *" value={form.name||""} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="ex: Galaxy S25 Ultra"/>
+         {modal.type==="editModel"&&(
+           <>
+             <p style={{fontSize:"11px",fontWeight:700,color:"var(--g500)",textTransform:"uppercase",
+               letterSpacing:".5px",marginBottom:"12px"}}>Prix (€) — laisser vide si non disponible</p>
+             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"10px"}}>
+               {RT_KEYS.map(k=>(
+                 <Field key={k} label={`${RT_ICONS[k]} ${RT_LABELS[k]}`} type="number"
+                   value={form[k]||""} onChange={e=>setForm(f=>({...f,[k]:e.target.value}))}
+                   placeholder="—" style={{marginBottom:0}}/>
+               ))}
+             </div>
+           </>
+         )}
+         <div style={{marginTop:"16px"}}>
+           <Btn full onClick={saveModel} disabled={!form.name?.trim()}>
+             <ICheck/> {modal.type==="addModel"?"Ajouter":"Enregistrer les prix"}
+           </Btn>
+         </div>
+       </Modal>
+     )}
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  ADMIN — ONGLET DEMANDES
+═══════════════════════════════════════════ */
+function AdminRequestsTab({requests,setRequests,setBrands}){
+ const pending = requests.filter(r=>r.status==="pending");
+ const done    = requests.filter(r=>r.status!=="pending");
+
+ function accept(req){
+   if(req.suggestedPrice!=null&&req.brandId&&req.modelId&&req.repairTypeId){
+     setBrands(bs=>bs.map(b=>b.id!==req.brandId?b:{
+       ...b,models:b.models.map(m=>m.id!==req.modelId?m:{
+         ...m,prices:{...m.prices,[req.repairTypeId]:req.suggestedPrice}
+       })
+     }));
+   }
+   setRequests(rs=>rs.map(r=>r.id===req.id?{...r,status:"accepted"}:r));
+ }
+ function refuse(id){
+   setRequests(rs=>rs.map(r=>r.id===id?{...r,status:"refused"}:r));
+ }
+
+ const Card=({req})=>(
+   <div style={{background:"#fff",borderRadius:"var(--r20)",padding:"24px 28px",boxShadow:"var(--sh1)",transition:"box-shadow .18s",
+     opacity:req.status==="pending"?1:.65,
+     borderLeft:`4px solid ${req.status==="accepted"?"var(--gn)":req.status==="refused"?"var(--rd)":"var(--or)"}`}}>
+     <div className="req-card-body" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:"10px"}}>
+       <div style={{flex:1,minWidth:"180px"}}>
+         <div style={{display:"flex",alignItems:"center",gap:"8px",flexWrap:"wrap",marginBottom:"6px"}}>
+           <span style={{fontWeight:800,fontSize:"18px"}}>{req.senderName}</span>
+           <span className={`tag ${req.status==="pending"?"to":req.status==="accepted"?"tg":"tr"}`}>
+             {req.status==="pending"?"⏳ En attente":req.status==="accepted"?"✅ Acceptée":"❌ Refusée"}
+           </span>
+         </div>
+         <div style={{color:"var(--bl)",fontWeight:600,fontSize:"13px",marginBottom:"4px"}}>
+           {req.brandName} · {req.modelName}
+         </div>
+         <div style={{color:"var(--g600)",fontSize:"15px",marginBottom:"6px"}}>
+           {req.repairTypeLabel} — Actuel :{" "}
+           <strong>{req.currentPrice!=null?`${req.currentPrice}€`:"—"}</strong>
+           {req.suggestedPrice!=null&&<> → Suggéré :{" "}
+             <strong style={{color:"var(--gn)"}}>{req.suggestedPrice}€</strong></>}
+         </div>
+         {req.comment&&(
+           <div style={{background:"var(--g50)",borderRadius:"8px",padding:"8px 12px",fontSize:"12px",
+             color:"var(--g700)",fontStyle:"italic",borderLeft:"3px solid var(--g300)"}}>
+             « {req.comment} »
+           </div>
+         )}
+         <div style={{color:"var(--g400)",fontSize:"13px",marginTop:"8px"}}>
+           {new Date(req.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"})}
+         </div>
+       </div>
+       {req.status==="pending"&&(
+         <div className="req-card-actions" style={{display:"flex",gap:"8px",flexShrink:0}}>
+           <Btn size="sm" variant="success" onClick={()=>accept(req)}>
+             <ICheck/> Accepter{req.suggestedPrice!=null?" & appliquer":""}
+           </Btn>
+           <Btn size="sm" variant="danger" onClick={()=>refuse(req.id)}><IX/> Refuser</Btn>
+         </div>
+       )}
+     </div>
+   </div>
+ );
+
+ return(
+   <div style={{padding:"36px 40px",overflowY:"auto",flex:1}}>
+     <div style={{display:"flex",alignItems:"center",gap:"12px",marginBottom:"24px"}}>
+       <h2 style={{fontWeight:800,fontSize:"24px"}}>Demandes de modification</h2>
+       {pending.length>0&&<span className="tag to">{pending.length} en attente</span>}
+     </div>
+
+     {pending.length>0&&(
+       <div style={{marginBottom:"28px"}}>
+         <p style={{fontSize:"12px",fontWeight:800,color:"var(--or)",textTransform:"uppercase",
+           letterSpacing:".5px",marginBottom:"12px"}}>⏳ En attente ({pending.length})</p>
+         <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+           {[...pending].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(r=><Card key={r.id} req={r}/>)}
+         </div>
+       </div>
+     )}
+
+     {done.length>0&&(
+       <div>
+         <p style={{fontSize:"12px",fontWeight:800,color:"var(--g500)",textTransform:"uppercase",
+           letterSpacing:".5px",marginBottom:"12px"}}>Historique ({done.length})</p>
+         <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+           {[...done].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(r=><Card key={r.id} req={r}/>)}
+         </div>
+       </div>
+     )}
+
+     {requests.length===0&&(
+       <div style={{textAlign:"center",padding:"80px 0",color:"var(--g400)"}}>
+         <div style={{fontSize:"52px",marginBottom:"14px"}}>📭</div>
+         <p style={{fontWeight:600,fontSize:"16px"}}>Aucune demande pour l'instant</p>
+         <p style={{fontSize:"13px",marginTop:"6px"}}>Les suggestions de prix apparaîtront ici.</p>
+       </div>
+     )}
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  ADMIN — ONGLET PARAMÈTRES
+═══════════════════════════════════════════ */
+function AdminSettingsTab({siteName,setSiteName,repairTypes,setRepairTypes}){
+ const [nv,setNv]       = useState(siteName);
+ const [saved,setSaved] = useState(false);
+
+ function saveName(){
+   setSiteName(nv.trim()||siteName);
+   setSaved(true);
+   setTimeout(()=>setSaved(false),2000);
+ }
+ function updRT(id,field,val){
+   setRepairTypes(rts=>rts.map(r=>r.id===id?{...r,[field]:val}:r));
+ }
+
+ return(
+   <div style={{padding:"36px 40px",overflowY:"auto",flex:1}}>
+     <h2 style={{fontWeight:800,fontSize:"24px",marginBottom:"24px"}}>Paramètres</h2>
+     <div style={{maxWidth:"680px"}}>
+       <div style={{background:"#fff",borderRadius:"var(--r20)",padding:"28px 32px",boxShadow:"var(--sh1)",marginBottom:"20px"}}>
+         <h3 style={{fontWeight:700,fontSize:"18px",marginBottom:"20px",color:"var(--g700)"}}>🏷️ Nom du site</h3>
+         <Field label="Nom affiché" value={nv} onChange={e=>setNv(e.target.value)} placeholder="Renki Reparation"/>
+         <Btn onClick={saveName} variant={saved?"success":"primary"}>
+           {saved?<><ICheck/> Enregistré !</>:<><ICheck/> Sauvegarder</>}
+         </Btn>
+       </div>
+
+       <div style={{background:"#fff",borderRadius:"var(--r20)",padding:"28px 32px",boxShadow:"var(--sh1)",marginBottom:"20px"}}>
+         <h3 style={{fontWeight:700,fontSize:"18px",marginBottom:"8px",color:"var(--g700)"}}>🔧 Types de réparation & Icônes</h3>
+         <p style={{fontSize:"12px",color:"var(--g400)",marginBottom:"14px"}}>
+           Modifiez l'emoji et le libellé de chaque type.
+         </p>
+         <div style={{display:"flex",flexDirection:"column",gap:"10px"}}>
+           {repairTypes.map(rt=>(
+             <div key={rt.id} style={{display:"flex",gap:"10px",alignItems:"center"}}>
+               <input value={rt.icon} onChange={e=>updRT(rt.id,"icon",e.target.value)}
+                 style={{width:"54px",textAlign:"center",fontSize:"20px",border:"1.5px solid var(--g200)",
+                   borderRadius:"8px",padding:"6px",background:"var(--g50)",outline:"none"}}/>
+               <input value={rt.label} onChange={e=>updRT(rt.id,"label",e.target.value)}
+                 style={{flex:1,border:"1.5px solid var(--g200)",borderRadius:"8px",padding:"8px 12px",
+                   fontSize:"13px",fontWeight:500,background:"var(--g50)",color:"var(--g900)",outline:"none"}}/>
+             </div>
+           ))}
+         </div>
+       </div>
+
+       <div style={{background:"var(--bl3)",borderRadius:"var(--r12)",padding:"14px 18px",border:"1px solid var(--bl4)"}}>
+         <p style={{fontSize:"12px",color:"var(--bl2)",fontWeight:600}}>
+           💾 Toutes les données sont sauvegardées automatiquement en temps réel.
+         </p>
+       </div>
+     </div>
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  ADMIN DASHBOARD
+═══════════════════════════════════════════ */
+function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteName,repairTypes,setRepairTypes,onExit}){
+ const [tab,setTab] = useState("brands");
+ const pendingCount = requests.filter(r=>r.status==="pending").length;
+
+ const tabs = [
+   {id:"brands",   label:"Marques & Modèles", icon:<IGrid s={20}/>,   badge:0},
+   {id:"requests", label:"Demandes",            icon:<IBell s={20}/>,   badge:pendingCount},
+   {id:"settings", label:"Paramètres",         icon:<ISettings s={20}/>,badge:0},
+ ];
+
+ const tabTitles = {
+   brands:   {title:"Marques & Modèles", sub:"Gérez vos marques et les tarifs de réparation"},
+   requests: {title:"Demandes de prix",    sub:"Suggestions envoyées par les utilisateurs"},
+   settings: {title:"Paramètres",         sub:"Configuration générale du site"},
+ };
+
+ return(
+   <div className="admin-layout">
+     <style>{CSS}</style>
+
+     {/* ── Sidebar bleue ── */}
+     <aside className="admin-aside">
+       <div className="admin-aside-header">
+         <img className="admin-aside-logo" src="/care-logo.png" alt="Care"
+           style={{height:"72px"}} onError={e=>e.target.style.display="none"}/>
+         <div>
+           <div className="admin-aside-name" style={{fontSize:"22px"}}>{siteName}</div>
+           <div className="admin-aside-sub">Dashboard Admin</div>
+         </div>
+       </div>
+
+       <nav className="admin-nav">
+         {tabs.map(t=>(
+           <button key={t.id}
+             className={`admin-nav-item${tab===t.id?" active":""}`}
+             onClick={()=>setTab(t.id)}>
+             <span className="admin-nav-icon">{t.icon}</span>
+             {t.label}
+             {t.badge>0&&<span className="admin-nav-badge">{t.badge}</span>}
+           </button>
+         ))}
+       </nav>
+
+       <div className="admin-aside-footer">
+         <button className="admin-exit-btn" onClick={onExit}>
+           <IEye s={18}/> Vue visiteur
+         </button>
+       </div>
+     </aside>
+
+     {/* ── Zone principale ── */}
+     <main className="admin-main">
+       {/* Topbar */}
+       <div className="admin-topbar">
+         <div>
+           <div className="admin-topbar-title">{tabTitles[tab].title}</div>
+           <div className="admin-topbar-sub">{tabTitles[tab].sub}</div>
+         </div>
+         {tab==="brands"&&(
+           <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+             <span style={{fontSize:"14px",color:"var(--g500)",fontWeight:500}}>
+               {brands.reduce((s,b)=>s+b.models.length,0)} modèles au total
+             </span>
+           </div>
+         )}
+         {tab==="requests"&&pendingCount>0&&(
+           <span className="tag to" style={{fontSize:"14px",padding:"6px 14px"}}>
+             {pendingCount} en attente
+           </span>
+         )}
+       </div>
+
+       {/* Contenu onglet */}
+       {tab==="brands"   &&<AdminBrandsTab brands={brands} setBrands={setBrands}/>}
+       {tab==="requests" &&<AdminRequestsTab requests={requests} setRequests={setRequests} setBrands={setBrands}/>}
+       {tab==="settings" &&<AdminSettingsTab siteName={siteName} setSiteName={setSiteName} repairTypes={repairTypes} setRepairTypes={setRepairTypes}/>}
+     </main>
+
+     {/* Bottom nav mobile */}
+     <nav className="admin-bottomnav">
+       <div className="admin-bottomnav-inner">
+         {[
+           {id:"brands",   label:"Modèles",    icon:<IGrid s={22}/>},
+           {id:"requests", label:"Demandes",   icon:<IBell s={22}/>, badge:pendingCount},
+           {id:"settings", label:"Paramètres", icon:<ISettings s={22}/>},
+           {id:"exit",     label:"Visiteur",   icon:<IEye s={22}/>},
+         ].map(item=>(
+           <button key={item.id}
+             className={`admin-bottomnav-btn${tab===item.id?" active":""}`}
+             onClick={()=>item.id==="exit"?onExit():setTab(item.id)}>
+             {item.badge>0&&<span className="bnav-badge">{item.badge}</span>}
+             <span className="bnav-icon">{item.icon}</span>
+             <span>{item.label}</span>
+           </button>
+         ))}
+       </div>
+     </nav>
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  LOGIN
+═══════════════════════════════════════════ */
+function Login({onSuccess}){
+ const [pwd,setPwd] = useState("");
+ const [err,setErr] = useState(false);
+ function tryLogin(){
+   if(pwd===ADMIN_PWD){onSuccess();}
+   else{setErr(true);setPwd("");setTimeout(()=>setErr(false),1600);}
+ }
+ return(
+   <div style={{minHeight:"100vh",background:"linear-gradient(135deg,#003DA5,#005BFF 55%,#4D94FF)",
+     display:"flex",alignItems:"center",justifyContent:"center",padding:"20px",fontFamily:"'Outfit',sans-serif"}}>
+     <style>{CSS}</style>
+     <div className="aS" style={{background:"#fff",borderRadius:"var(--r24)",padding:"44px 40px",
+       width:"100%",maxWidth:"380px",boxShadow:"0 32px 100px rgba(0,0,0,.3)",textAlign:"center"}}>
+       <div style={{fontSize:"48px",marginBottom:"16px"}}>🔐</div>
+       <h2 style={{fontWeight:800,fontSize:"22px",color:"var(--g900)",marginBottom:"6px"}}>Accès administrateur</h2>
+       <p style={{color:"var(--g400)",fontSize:"13px",marginBottom:"28px"}}>
+         Entrez votre mot de passe pour accéder au dashboard
+       </p>
+       <input type="password" placeholder="Mot de passe" value={pwd}
+         onChange={e=>setPwd(e.target.value)} onKeyDown={e=>e.key==="Enter"&&tryLogin()}
+         style={{width:"100%",background:err?"#fff5f5":"var(--g50)",
+           border:`1.5px solid ${err?"var(--rd)":"var(--g200)"}`,borderRadius:"10px",
+           padding:"12px 16px",fontSize:"14px",color:"var(--g900)",outline:"none",
+           boxSizing:"border-box",marginBottom:"8px",transition:"border-color .2s"}}
+         autoFocus/>
+       {err&&<p style={{color:"var(--rd)",fontSize:"12px",fontWeight:600,marginBottom:"8px"}}>
+         Mot de passe incorrect
+       </p>}
+       <Btn full size="lg" onClick={tryLogin}><ILock/> Se connecter</Btn>
+     </div>
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  ROOT APP
+═══════════════════════════════════════════ */
+export default function App(){
+ const [brands,      setBrands]      = useState(DEFAULT_BRANDS);
+ const [requests,    setRequests]    = useState([]);
+ const [siteName,    setSiteName]    = useState("Renki Reparation");
+ const [repairTypes, setRepairTypes] = useState(DEFAULT_REPAIR_TYPES);
+ const [loaded,      setLoaded]      = useState(false);
+ const [view,        setView]        = useState("public");
+ const [adminAuth,   setAdminAuth]   = useState(false);
+
+ useEffect(()=>{
+   (async()=>{
+     try{
+       const {doc,getDoc,getFirestore}=await import("firebase/firestore");
+       const db=getFirestore();
+       const snap=await getDoc(doc(db,"site","data"));
+       if(snap.exists()){
+         const d=snap.data();
+         if(d.brands)   setBrands(d.brands);
+         if(d.requests) setRequests(d.requests);
+         if(d.siteName) setSiteName(d.siteName);
+         if(d.repairTypes) setRepairTypes(d.repairTypes);
+       }
+     }catch(e){console.error("Firestore load error",e);}
+     setLoaded(true);
+   })();
+ },[]);
+
+ useEffect(()=>{
+   if(!loaded)return;
+   (async()=>{
+     try{
+       const {doc,setDoc,getFirestore}=await import("firebase/firestore");
+       const db=getFirestore();
+       await setDoc(doc(db,"site","data"),{brands,requests,siteName,repairTypes},{merge:true});
+     }catch(e){console.error("Firestore save error",e);}
+   })();
+ },[brands,loaded]);
+ useEffect(()=>{
+   if(!loaded)return;
+   (async()=>{
+     try{
+       const {doc,setDoc,getFirestore}=await import("firebase/firestore");
+       const db=getFirestore();
+       await setDoc(doc(db,"site","data"),{brands,requests,siteName,repairTypes},{merge:true});
+     }catch(e){console.error("Firestore save error",e);}
+   })();
+ },[requests,loaded]);
+ useEffect(()=>{
+   if(!loaded)return;
+   (async()=>{
+     try{
+       const {doc,setDoc,getFirestore}=await import("firebase/firestore");
+       const db=getFirestore();
+       await setDoc(doc(db,"site","data"),{brands,requests,siteName,repairTypes},{merge:true});
+     }catch(e){console.error("Firestore save error",e);}
+   })();
+ },[siteName,repairTypes,loaded]);
+
+ const onSuggest = useCallback((req)=>{
+   setRequests(rs=>[...rs,req]);
+ },[]);
+
+ if(!loaded) return(
+   <div style={{minHeight:"100vh",background:"var(--bl)",display:"flex",alignItems:"center",
+     justifyContent:"center",fontFamily:"'Outfit',sans-serif"}}>
+     <style>{CSS}</style>
+     <div style={{textAlign:"center",color:"#fff"}}>
+       <div style={{fontSize:"42px",marginBottom:"12px",animation:"pulse 1.4s infinite"}}>🛠️</div>
+       <p style={{opacity:.7,fontWeight:500}}>Chargement…</p>
+     </div>
+   </div>
+ );
+
+ return(
+   <>
+     {view==="public"&&(
+       <PublicView
+         brands={brands}
+         siteName={siteName}
+         repairTypes={repairTypes}
+         onSuggest={onSuggest}
+         onAdminClick={()=>adminAuth?setView("admin"):setView("login")}
+       />
+     )}
+     {view==="login"&&(
+       <Login onSuccess={()=>{setAdminAuth(true);setView("admin");}}/>
+     )}
+     {view==="admin"&&adminAuth&&(
+       <AdminDashboard
+         brands={brands}           setBrands={setBrands}
+         requests={requests}       setRequests={setRequests}
+         siteName={siteName}       setSiteName={setSiteName}
+         repairTypes={repairTypes} setRepairTypes={setRepairTypes}
+         onExit={()=>setView("public")}
+       />
+     )}
+   </>
+ );
+}
