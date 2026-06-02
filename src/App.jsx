@@ -334,7 +334,7 @@ input,select,textarea,button{font-family:inherit}
 
 /* ── ADMIN RESPONSIVE ── */
 .admin-layout{display:flex;height:100vh;background:var(--g50);font-family:'Outfit',sans-serif;overflow:hidden}
-.admin-aside{width:220px;background:#fff;border-right:1px solid var(--g200);display:flex;flex-direction:column;flex-shrink:0;transition:transform .28s ease,width .28s ease}
+.admin-aside{width:280px;background:#fff;border-right:1px solid var(--g200);display:flex;flex-direction:column;flex-shrink:0;transition:transform .28s ease,width .28s ease}
 .admin-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 
 /* Mobile bottom nav for admin */
@@ -348,19 +348,19 @@ input,select,textarea,button{font-family:inherit}
 
 /* Brands tab layout responsive */
 .brands-layout{display:flex;flex:1;overflow:hidden}
-.brands-sidebar{width:230px;background:#fff;border-right:1px solid var(--g200);overflow-y:auto;flex-shrink:0}
-.brands-content{flex:1;overflow-y:auto;padding:20px 24px}
+.brands-sidebar{width:290px;background:#fff;border-right:1px solid var(--g200);overflow-y:auto;flex-shrink:0}
+.brands-content{flex:1;overflow-y:auto;padding:28px 32px}
 
 /* Price chips grid */
-.prices-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:10px}
+.prices-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
 
 /* Search page full */
-.public-main{max-width:1400px;margin:0 auto;padding:28px 24px 80px}
+.public-main{max-width:100%;margin:0 auto;padding:36px 40px 80px}
 
 /* RESPONSIVE BREAKPOINTS */
 @media(max-width:900px){
  .public-main{padding:20px 16px 80px}
- .brands-sidebar{width:190px}
+ .brands-sidebar{width:220px}
  .brands-content{padding:16px}
 }
 
@@ -588,17 +588,17 @@ function SuggestionForm({brandId,brandName,modelId,modelName,repairTypeId,repair
 ═══════════════════════════════════════════ */
 function PricesGrid({model,brand,repairTypes,onSuggest}){
  return(
-   <div className="aI" style={{padding:"14px 16px 18px",borderTop:"2px solid var(--g100)"}}>
+   <div className="aI" style={{padding:"18px 20px 24px",borderTop:"2px solid var(--g100)"}}>
      <div className="prices-grid">
        {repairTypes.map(rt=>{
          const price = model.prices[rt.id];
          return(
            <div key={rt.id} className="pc">
-             <div style={{display:"flex",alignItems:"center",gap:"7px",marginBottom:"7px"}}>
-               <span style={{fontSize:"20px",lineHeight:1}}>{rt.icon}</span>
-               <span style={{fontSize:"11px",fontWeight:700,color:"var(--g500)",lineHeight:1.2}}>{rt.label}</span>
+             <div style={{display:"flex",alignItems:"center",gap:"8px",marginBottom:"9px"}}>
+               <span style={{fontSize:"24px",lineHeight:1}}>{rt.icon}</span>
+               <span style={{fontSize:"12px",fontWeight:700,color:"var(--g500)",lineHeight:1.2}}>{rt.label}</span>
              </div>
-             <div style={{fontSize:"26px",fontWeight:900,letterSpacing:"-1.5px",lineHeight:1,
+             <div style={{fontSize:"30px",fontWeight:900,letterSpacing:"-1.5px",lineHeight:1,
                color:price!=null?"var(--bl)":"var(--g300)",fontFamily:"'DM Mono',monospace"}}>
                {price!=null?`${price}€`:"—"}
              </div>
@@ -627,20 +627,20 @@ function ModelRow({model,brand,repairTypes,onSuggest,delay=0}){
  return(
    <div className={`mr aU${open?" open":""}`} style={{animationDelay:`${delay}s`}}>
      <div className="mr-header" onClick={()=>setOpen(o=>!o)}
-       style={{padding:"14px 18px",display:"flex",alignItems:"center",
+       style={{padding:"18px 24px",display:"flex",alignItems:"center",
          justifyContent:"space-between",cursor:"pointer",userSelect:"none",
-         background:open?"#ebf1ff":"#fff",transition:"background .2s",minHeight:"56px"}}>
-       <div style={{display:"flex",alignItems:"center",gap:"11px"}}>
-         <div style={{width:"9px",height:"9px",borderRadius:"50%",flexShrink:0,
+         background:open?"#ebf1ff":"#fff",transition:"background .2s",minHeight:"64px"}}>
+       <div style={{display:"flex",alignItems:"center",gap:"14px"}}>
+         <div style={{width:"10px",height:"10px",borderRadius:"50%",flexShrink:0,
            background:open?"var(--bl)":"var(--g300)",transition:"background .2s"}}/>
-         <span className="mr-name" style={{fontWeight:700,fontSize:"14px",color:"var(--g900)"}}>{model.name}</span>
+         <span className="mr-name" style={{fontWeight:700,fontSize:"16px",color:"var(--g900)"}}>{model.name}</span>
        </div>
-       <div style={{display:"flex",alignItems:"center",gap:"10px"}}>
+       <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
          {minP!=null&&!open&&(
-           <span style={{fontSize:"12px",color:"var(--g400)",fontWeight:500,
+           <span style={{fontSize:"14px",color:"var(--g400)",fontWeight:500,
              fontFamily:"'DM Mono',monospace"}}>dès {minP}€</span>
          )}
-         <div className="mr-chevron" style={{width:"34px",height:"34px",borderRadius:"8px",display:"flex",
+         <div className="mr-chevron" style={{width:"38px",height:"38px",borderRadius:"10px",display:"flex",
            alignItems:"center",justifyContent:"center",transition:"all .2s",
            background:open?"var(--bl)":"var(--g100)",color:open?"#fff":"var(--g500)",
            transform:open?"rotate(180deg)":"none"}}>
@@ -688,9 +688,9 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
      {/* ── HEADER ── */}
      <header style={{background:"var(--bl)",boxShadow:"0 2px 28px rgba(0,91,255,.38)",
        position:"sticky",top:0,zIndex:100}}>
-       <div style={{maxWidth:"1400px",margin:"0 auto",padding:"0 20px"}}>
+       <div style={{maxWidth:"100%",margin:"0 auto",padding:"0 40px"}}>
          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",
-           height:"66px",gap:"12px"}}>
+           height:"76px",gap:"16px"}}>
            <div style={{display:"flex",alignItems:"center",gap:"10px",flex:1,minWidth:0}}>
              {screen==="models"&&(
                <button onClick={goBack} style={{background:"rgba(255,255,255,.18)",border:"1px solid rgba(255,255,255,.25)",
@@ -701,14 +701,14 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
                  <IBack/>
                </button>
              )}
-             <div style={{width:"42px",height:"42px",background:"rgba(255,255,255,.2)",borderRadius:"12px",
-               display:"flex",alignItems:"center",justifyContent:"center",fontSize:"22px",flexShrink:0}}>
+             <div style={{width:"48px",height:"48px",background:"rgba(255,255,255,.2)",borderRadius:"14px",
+               display:"flex",alignItems:"center",justifyContent:"center",fontSize:"26px",flexShrink:0}}>
                🛠️
              </div>
              <div style={{minWidth:0}}>
-               <div style={{fontWeight:900,fontSize:"18px",color:"#fff",letterSpacing:"-.5px",
+               <div style={{fontWeight:900,fontSize:"22px",color:"#fff",letterSpacing:"-.5px",
                  overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{siteName}</div>
-               <div style={{fontSize:"10px",color:"rgba(255,255,255,.65)",fontWeight:500}}>
+               <div style={{fontSize:"12px",color:"rgba(255,255,255,.65)",fontWeight:500}}>
                  {screen==="models"&&brand
                    ? <><span style={{opacity:.6}}>Marques</span>{" › "}<span>{brand.name}</span></>
                    : "Tarifs de réparation smartphone"}
@@ -717,22 +717,22 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
            </div>
            <button onClick={onAdminClick}
              style={{background:"rgba(255,255,255,.15)",border:"1px solid rgba(255,255,255,.25)",
-               borderRadius:"10px",color:"#fff",padding:"10px 16px",fontSize:"12px",fontWeight:700,
-               display:"flex",alignItems:"center",gap:"7px",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
+               borderRadius:"12px",color:"#fff",padding:"12px 22px",fontSize:"14px",fontWeight:700,
+               display:"flex",alignItems:"center",gap:"8px",cursor:"pointer",flexShrink:0,whiteSpace:"nowrap"}}>
              <ILock/> <span style={{display:"none"}} className="admin-label">Admin</span>
              <span>Admin</span>
            </button>
          </div>
          {/* Barre de recherche */}
-         <div style={{paddingBottom:"16px"}}>
+         <div style={{paddingBottom:"20px"}}>
            <div style={{position:"relative"}}>
-             <span style={{position:"absolute",left:"14px",top:"50%",transform:"translateY(-50%)",
-               color:"rgba(255,255,255,.5)",pointerEvents:"none",display:"flex"}}><ISearch/></span>
+             <span style={{position:"absolute",left:"18px",top:"50%",transform:"translateY(-50%)",
+               color:"rgba(255,255,255,.5)",pointerEvents:"none",display:"flex"}}><ISearch s={20}/></span>
              <input className="search-input" value={search} onChange={e=>setSearch(e.target.value)}
-               placeholder="Rechercher un modèle…"
+               placeholder="Rechercher un modèle parmi toutes les marques…"
                style={{width:"100%",background:"rgba(255,255,255,.15)",
-                 border:"1.5px solid rgba(255,255,255,.25)",borderRadius:"12px",
-                 padding:"13px 16px 13px 44px",fontSize:"15px",color:"#fff",
+                 border:"1.5px solid rgba(255,255,255,.25)",borderRadius:"14px",
+                 padding:"16px 20px 16px 52px",fontSize:"16px",color:"#fff",
                  outline:"none",boxSizing:"border-box"}}
                onFocus={e=>e.target.style.background="rgba(255,255,255,.22)"}
                onBlur={e=>e.target.style.background="rgba(255,255,255,.15)"}
@@ -778,44 +778,44 @@ function PublicView({brands,siteName,repairTypes,onSuggest,onAdminClick}){
        {/* Grille marques */}
        {!search.trim()&&screen==="brands"&&(
          <div className="aI">
-           <h2 style={{fontSize:"22px",fontWeight:800,color:"var(--g800)",marginBottom:"6px"}}>
+           <h2 style={{fontSize:"28px",fontWeight:800,color:"var(--g800)",marginBottom:"8px"}}>
              Choisissez votre marque
            </h2>
-           <p style={{fontSize:"13px",color:"var(--g400)",marginBottom:"24px"}}>
+           <p style={{fontSize:"15px",color:"var(--g400)",marginBottom:"32px"}}>
              Cliquez sur une marque pour explorer ses modèles et tarifs.
            </p>
-           <div className="brand-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(210px,1fr))",gap:"18px"}}>
+           <div className="brand-grid" style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:"24px"}}>
              {brands.map((b,i)=>(
                <div key={b.id} className="bt aU" style={{animationDelay:`${i*0.06}s`}}
                  onClick={()=>openBrand(b.id)}
                  onMouseEnter={e=>e.currentTarget.style.borderColor=b.accent||"var(--bl)"}
                  onMouseLeave={e=>e.currentTarget.style.borderColor="transparent"}>
-                 <div className="brand-tile-zone" style={{background:b.bgGrad,padding:"26px 20px 22px",
-                   display:"flex",flexDirection:"column",alignItems:"center",gap:"10px"}}>
-                   <div style={{width:"96px",height:"60px",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                 <div className="brand-tile-zone" style={{background:b.bgGrad,padding:"36px 24px 28px",
+                   display:"flex",flexDirection:"column",alignItems:"center",gap:"12px"}}>
+                   <div style={{width:"120px",height:"76px",display:"flex",alignItems:"center",justifyContent:"center"}}>
                      <img src={b.logo} alt={b.name}
                        className="brand-tile-logo"
-                       style={{maxWidth:"96px",maxHeight:"56px",objectFit:"contain",
-                         filter:"drop-shadow(0 2px 6px rgba(0,0,0,.15))"}}
+                       style={{maxWidth:"120px",maxHeight:"72px",objectFit:"contain",
+                         filter:"drop-shadow(0 2px 8px rgba(0,0,0,.15))"}}
                        onError={e=>{e.target.style.display="none";e.target.nextSibling.style.display="flex";}}
                      />
-                     <div style={{display:"none",width:"54px",height:"54px",background:b.accent||"var(--bl)",
-                       borderRadius:"14px",alignItems:"center",justifyContent:"center",
-                       fontSize:"22px",fontWeight:900,color:"#fff"}}>
+                     <div style={{display:"none",width:"64px",height:"64px",background:b.accent||"var(--bl)",
+                       borderRadius:"16px",alignItems:"center",justifyContent:"center",
+                       fontSize:"28px",fontWeight:900,color:"#fff"}}>
                        {b.name[0]}
                      </div>
                    </div>
                  </div>
-                 <div style={{background:"#fff",padding:"14px 18px 16px",
+                 <div style={{background:"#fff",padding:"18px 22px 20px",
                    borderTop:`3px solid ${b.accent||"var(--bl)"}`}}>
-                   <div style={{fontWeight:800,fontSize:"16px",color:"var(--g900)",marginBottom:"4px"}}>
+                   <div style={{fontWeight:800,fontSize:"19px",color:"var(--g900)",marginBottom:"6px"}}>
                      {b.name}
                    </div>
                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                     <span style={{fontSize:"12px",color:"var(--g400)"}}>
+                     <span style={{fontSize:"13px",color:"var(--g400)"}}>
                        {b.models.length} modèle{b.models.length>1?"s":""}
                      </span>
-                     <span style={{fontSize:"12px",fontWeight:800,color:b.accent||"var(--bl)"}}>
+                     <span style={{fontSize:"13px",fontWeight:800,color:b.accent||"var(--bl)"}}>
                        Voir →
                      </span>
                    </div>
@@ -930,28 +930,28 @@ function AdminBrandsTab({brands,setBrands}){
 
  const SidebarContent = () => (
    <>
-     <div style={{padding:"14px 12px 10px",borderBottom:"1px solid var(--g100)",
+     <div style={{padding:"16px 14px 12px",borderBottom:"1px solid var(--g100)",
        display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-       <span style={{fontSize:"11px",fontWeight:800,color:"var(--g500)",textTransform:"uppercase",letterSpacing:".6px"}}>
+       <span style={{fontSize:"12px",fontWeight:800,color:"var(--g500)",textTransform:"uppercase",letterSpacing:".6px"}}>
          Marques
        </span>
        <Btn size="sm" onClick={()=>{setForm({});setModal({type:"addBrand"})}}><IPlus/></Btn>
      </div>
      {brands.map(b=>(
        <div key={b.id} onClick={()=>selectBrand(b.id)}
-         style={{display:"flex",alignItems:"center",gap:"8px",padding:"12px 14px",cursor:"pointer",
+         style={{display:"flex",alignItems:"center",gap:"10px",padding:"14px 16px",cursor:"pointer",
            background:activeBrandId===b.id?"var(--bl3)":"transparent",
            borderLeft:activeBrandId===b.id?"3px solid var(--bl)":"3px solid transparent",
            transition:"all .12s"}}>
-         <div style={{width:"32px",height:"24px",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+         <div style={{width:"38px",height:"28px",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
            {b.logo
-             ?<img src={b.logo} alt="" style={{maxWidth:"32px",maxHeight:"22px",objectFit:"contain"}} onError={e=>e.target.style.opacity="0"}/>
-             :<span style={{fontSize:"14px",fontWeight:800,color:"var(--bl)"}}>{b.name[0]}</span>}
+             ?<img src={b.logo} alt="" style={{maxWidth:"38px",maxHeight:"26px",objectFit:"contain"}} onError={e=>e.target.style.opacity="0"}/>
+             :<span style={{fontSize:"16px",fontWeight:800,color:"var(--bl)"}}>{b.name[0]}</span>}
          </div>
          <div style={{flex:1,minWidth:0}}>
-           <div style={{fontWeight:700,fontSize:"13px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
+           <div style={{fontWeight:700,fontSize:"14px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",
              color:activeBrandId===b.id?"var(--bl)":"var(--g800)"}}>{b.name}</div>
-           <div style={{fontSize:"10px",color:"var(--g400)"}}>{b.models.length} modèles</div>
+           <div style={{fontSize:"11px",color:"var(--g400)"}}>{b.models.length} modèles</div>
          </div>
          <div style={{display:"flex",gap:"2px",flexShrink:0}}>
            <button onClick={e=>{e.stopPropagation();setForm({name:b.name,logo:b.logo||"",accent:b.accent||"#005BFF"});setModal({type:"editBrand",data:b});}}
@@ -1259,13 +1259,13 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
  /* Nav item desktop sidebar */
  const NavItem=({id,label,icon,badge})=>(
    <button onClick={()=>setTab(id)} style={{
-     width:"100%",textAlign:"left",display:"flex",alignItems:"center",gap:"9px",
-     padding:"11px 14px",borderRadius:"9px",border:"none",cursor:"pointer",fontFamily:"inherit",
+     width:"100%",textAlign:"left",display:"flex",alignItems:"center",gap:"11px",
+     padding:"13px 16px",borderRadius:"10px",border:"none",cursor:"pointer",fontFamily:"inherit",
      background:tab===id?"var(--bl3)":"transparent",color:tab===id?"var(--bl)":"var(--g600)",
-     fontWeight:tab===id?700:500,fontSize:"13px",transition:"all .12s"}}>
+     fontWeight:tab===id?700:500,fontSize:"15px",transition:"all .12s"}}>
      {icon}{label}
      {badge>0&&<span style={{marginLeft:"auto",background:"var(--bl)",color:"#fff",borderRadius:"20px",
-       padding:"1px 7px",fontSize:"11px",fontWeight:800}}>{badge}</span>}
+       padding:"2px 9px",fontSize:"12px",fontWeight:800}}>{badge}</span>}
    </button>
  );
 
@@ -1279,8 +1279,8 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
          <div style={{display:"flex",alignItems:"center",gap:"9px"}}>
            <div style={{fontSize:"24px"}}>🛠️</div>
            <div>
-             <div style={{fontWeight:800,fontSize:"13px",color:"var(--bl)"}}>{siteName}</div>
-             <div style={{fontSize:"10px",color:"var(--g400)"}}>Dashboard Admin</div>
+             <div style={{fontWeight:800,fontSize:"16px",color:"var(--bl)"}}>{siteName}</div>
+             <div style={{fontSize:"12px",color:"var(--g400)"}}>Dashboard Admin</div>
            </div>
          </div>
        </div>
