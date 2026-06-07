@@ -1601,6 +1601,7 @@ export default function App(){
  const [view,        setView]        = useState("public");
  const [adminAuth,   setAdminAuth]   = useState(false);
 
+ /* ── Chargement initial depuis Firestore ── */
  useEffect(()=>{
    (async()=>{
      try{
@@ -1609,46 +1610,33 @@ export default function App(){
        const snap=await getDoc(doc(db,"site","data"));
        if(snap.exists()){
          const d=snap.data();
-         if(d.brands)   setBrands(d.brands);
-         if(d.requests) setRequests(d.requests);
-         if(d.siteName) setSiteName(d.siteName);
-         if(d.repairTypes) setRepairTypes(d.repairTypes);
+         if(d.brands      && d.brands.length)      setBrands(d.brands);
+         if(d.requests)                             setRequests(d.requests);
+         if(d.siteName    && d.siteName.trim())     setSiteName(d.siteName);
+         if(d.repairTypes && d.repairTypes.length)  setRepairTypes(d.repairTypes);
        }
      }catch(e){console.error("Firestore load error",e);}
      setLoaded(true);
    })();
  },[]);
 
+ /* ── Sauvegarde unique avec debounce 800ms ──
+    UN SEUL useEffect qui réagit à TOUS les états ensemble
+    → pas de race condition, pas d'écrasement mutuel       */
  useEffect(()=>{
-   if(!loaded)return;
-   (async()=>{
+   if(!loaded) return;
+   const timer = setTimeout(async()=>{
      try{
        const {doc,setDoc,getFirestore}=await import("firebase/firestore");
        const db=getFirestore();
-       await setDoc(doc(db,"site","data"),{brands,requests,siteName,repairTypes},{merge:true});
+       await setDoc(doc(db,"site","data"),
+         {brands, requests, siteName, repairTypes},
+         {merge:false}   // overwrite complet = pas de données fantômes
+       );
      }catch(e){console.error("Firestore save error",e);}
-   })();
- },[brands,loaded]);
- useEffect(()=>{
-   if(!loaded)return;
-   (async()=>{
-     try{
-       const {doc,setDoc,getFirestore}=await import("firebase/firestore");
-       const db=getFirestore();
-       await setDoc(doc(db,"site","data"),{brands,requests,siteName,repairTypes},{merge:true});
-     }catch(e){console.error("Firestore save error",e);}
-   })();
- },[requests,loaded]);
- useEffect(()=>{
-   if(!loaded)return;
-   (async()=>{
-     try{
-       const {doc,setDoc,getFirestore}=await import("firebase/firestore");
-       const db=getFirestore();
-       await setDoc(doc(db,"site","data"),{brands,requests,siteName,repairTypes},{merge:true});
-     }catch(e){console.error("Firestore save error",e);}
-   })();
- },[siteName,repairTypes,loaded]);
+   }, 800);
+   return ()=>clearTimeout(timer); // annule si un autre changement arrive avant 800ms
+ },[brands, requests, siteName, repairTypes, loaded]);
 
  const onSuggest = useCallback((req)=>{
    setRequests(rs=>[...rs,req]);
