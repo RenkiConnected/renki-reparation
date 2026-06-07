@@ -1,12 +1,12 @@
 import { initializeApp } from "firebase/app";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBHACl2J65Z9DytRFxW0XdDOFZlX4jjjJ0",
-  authDomain: "renki-reparation-6a172.firebaseapp.com",
-  projectId: "renki-reparation-6a172",
-  storageBucket: "renki-reparation-6a172.firebasestorage.app",
-  messagingSenderId: "564905125449",
-  appId: "1:564905125449:web:b088ed8015763b1d850198"
+  apiKey: "AIzaSyDPHQ7wE-9nW8vGljZ7RhMYxeP5npdbtQQ",
+  authDomain: "renkireparation.firebaseapp.com",
+  projectId: "renkireparation",
+  storageBucket: "renkireparation.firebasestorage.app",
+  messagingSenderId: "673702110991",
+  appId: "1:673702110991:web:2dda01217e67df01af007a"
 };
 
 const app = initializeApp(firebaseConfig);
