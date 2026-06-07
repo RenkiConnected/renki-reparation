@@ -460,9 +460,15 @@ input,select,textarea,button{font-family:inherit}
   border:1.5px solid var(--g200);
   box-shadow:0 2px 8px rgba(0,0,0,.04);
   padding:20px 24px;display:flex;align-items:flex-start;gap:16px;
-  transition:border-color .18s,box-shadow .18s;
+  transition:border-color .18s,box-shadow .18s,opacity .18s,transform .18s;
+  cursor:default;
 }
 .admin-model-card:hover{border-color:#93c5fd;box-shadow:0 4px 24px rgba(0,91,255,.1)}
+.admin-model-card.dragging{opacity:.4;transform:scale(.98);border-color:var(--bl);border-style:dashed}
+.admin-model-card.drag-over{border-color:var(--bl);border-style:solid;box-shadow:0 0 0 3px rgba(0,91,255,.2);transform:translateY(-2px)}
+.drag-handle{cursor:grab;color:var(--g300);display:flex;align-items:center;padding:4px 2px;border-radius:6px;transition:color .15s,background .15s;flex-shrink:0;touch-action:none}
+.drag-handle:hover{color:var(--bl);background:var(--bl3)}
+.drag-handle:active{cursor:grabbing}
 
 /* Price chips grid */
 .prices-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
@@ -589,6 +595,7 @@ const IEye     = ({s=16}) => I(<><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8
 const IBack    = ({s=16}) => I(<><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></>,s);
 const IArrowU  = ({s=13}) => I(<polyline points="18 15 12 9 6 15"/>,s,2.5);
 const IArrowD  = ({s=13}) => I(<polyline points="6 9 12 15 18 9"/>,s,2.5);
+const IGrip    = ({s=18}) => I(<><circle cx="9" cy="5" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="19" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="19" r="1.2" fill="currentColor" stroke="none"/></>,s,0);
 
 /* ─────────────────────────────────────────
   BTN
@@ -1058,6 +1065,8 @@ function AdminBrandsTab({brands,setBrands}){
  const [modal,setModal] = useState(null);
  const [form, setForm]  = useState({});
  const [sidebarOpen, setSidebarOpen] = useState(false);
+ const [dragId, setDragId] = useState(null);
+ const [dragOverId, setDragOverId] = useState(null);
 
  const brand  = brands.find(b=>b.id===activeBrandId);
  const sorted = brand?[...brand.models].sort((a,b)=>a.order-b.order):[];
@@ -1102,6 +1111,20 @@ function AdminBrandsTab({brands,setBrands}){
      const i=s.findIndex(m=>m.id===mid),ni=i+dir;
      if(ni<0||ni>=s.length)return b;
      [s[i],s[ni]]=[s[ni],s[i]];
+     return{...b,models:s.map((m,idx)=>({...m,order:idx+1}))};
+   }));
+ }
+
+ function dropModel(fromId, toId){
+   if(fromId===toId) return;
+   setBrands(bs=>bs.map(b=>{
+     if(b.id!==activeBrandId) return b;
+     const s=[...b.models].sort((a,x)=>a.order-x.order);
+     const fromIdx = s.findIndex(m=>m.id===fromId);
+     const toIdx   = s.findIndex(m=>m.id===toId);
+     if(fromIdx<0||toIdx<0) return b;
+     const moved = s.splice(fromIdx,1)[0];
+     s.splice(toIdx,0,moved);
      return{...b,models:s.map((m,idx)=>({...m,order:idx+1}))};
    }));
  }
@@ -1197,12 +1220,36 @@ function AdminBrandsTab({brands,setBrands}){
              </Btn>
            </div>
 
-           {/* Liste modèles — cards grand format */}
+           {/* Liste modèles — cards drag & drop */}
            <div style={{display:"flex",flexDirection:"column",gap:"12px"}}>
              {sorted.map((m,idx)=>(
-               <div key={m.id} className="admin-model-card admin-model-row">
-                 {/* Ordre */}
-                 <div style={{display:"flex",flexDirection:"column",gap:"4px",paddingTop:"2px",flexShrink:0}}>
+               <div key={m.id}
+                 className={`admin-model-card admin-model-row${dragId===m.id?" dragging":""}${dragOverId===m.id&&dragId!==m.id?" drag-over":""}`}
+                 draggable
+                 onDragStart={e=>{
+                   setDragId(m.id);
+                   e.dataTransfer.effectAllowed="move";
+                   e.dataTransfer.setData("text/plain",m.id);
+                 }}
+                 onDragOver={e=>{
+                   e.preventDefault();
+                   e.dataTransfer.dropEffect="move";
+                   if(dragOverId!==m.id) setDragOverId(m.id);
+                 }}
+                 onDragLeave={()=>setDragOverId(null)}
+                 onDrop={e=>{
+                   e.preventDefault();
+                   const fromId=e.dataTransfer.getData("text/plain");
+                   dropModel(fromId, m.id);
+                   setDragId(null); setDragOverId(null);
+                 }}
+                 onDragEnd={()=>{setDragId(null); setDragOverId(null);}}>
+
+                 {/* Poignée drag + flèches */}
+                 <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"4px",paddingTop:"2px",flexShrink:0}}>
+                   <div className="drag-handle" title="Glisser pour réordonner">
+                     <IGrip/>
+                   </div>
                    <button onClick={()=>moveModel(m.id,-1)} disabled={idx===0}
                      style={{background:"var(--g100)",border:"none",borderRadius:"8px",
                        padding:"7px 8px",cursor:idx===0?"default":"pointer",
