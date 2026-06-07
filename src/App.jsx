@@ -1626,9 +1626,29 @@ export default function App(){
        const snap=await getDoc(doc(db,"site","data"));
        if(snap.exists()){
          const d=snap.data();
-         if(d.brands      && d.brands.length)      setBrands(d.brands);
-         if(d.requests)                             setRequests(d.requests);
-         if(d.siteName    && d.siteName.trim())     setSiteName(d.siteName);
+
+         /* ── Fusion intelligente des marques ──
+            Pour chaque marque du code (DEFAULT_BRANDS) :
+            - Si elle existe dans Firebase → on garde les prix Firebase (modifiés par admin)
+              MAIS on ajoute les nouveaux modèles du code qui manquent dans Firebase
+            - Si elle n'existe pas dans Firebase → on la prend telle quelle du code       */
+         if(d.brands && d.brands.length){
+           const merged = DEFAULT_BRANDS.map(defaultBrand => {
+             const fbBrand = d.brands.find(b => b.id === defaultBrand.id);
+             if(!fbBrand) return defaultBrand; // nouvelle marque absente de Firebase
+             // Fusionner les modèles : garder ceux de Firebase + ajouter les nouveaux du code
+             const fbModelIds = new Set(fbBrand.models.map(m => m.name));
+             const newModels = defaultBrand.models.filter(m => !fbModelIds.has(m.name));
+             return {
+               ...fbBrand,
+               models: [...fbBrand.models, ...newModels]
+             };
+           });
+           setBrands(merged);
+         }
+
+         if(d.requests)                            setRequests(d.requests);
+         if(d.siteName && d.siteName.trim())        setSiteName(d.siteName);
          if(d.repairTypes && d.repairTypes.length)  setRepairTypes(d.repairTypes);
        }
      }catch(e){console.error("Firestore load error",e);}
