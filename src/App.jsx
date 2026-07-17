@@ -4,7 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 /* ─────────────────────────────────────────
   CONSTANTS
 ───────────────────────────────────────── */
-const ADMIN_PWD   = "Raphael2232";
+const MANAGER_PWD = "Raphael2232";   // accès complet
+const VENDEUR_PWD = "0852R@";        // accès prix + suggestions
+const ADMIN_PWD   = "Raphael2232";   // compat rétro
 const SK_BRANDS   = "rr_v6_brands";
 const SK_SITE     = "rr_v6_site";
 const SK_REQUESTS = "rr_v6_requests";
@@ -570,7 +572,19 @@ input,select,textarea,button{font-family:inherit}
  .admin-model-actions{flex-direction:row !important;justify-content:flex-end}
  .req-card-body{flex-direction:column !important}
  .req-card-actions{flex-direction:row !important;justify-content:flex-end;flex-wrap:wrap}
+ .role-grid{flex-direction:column !important;align-items:center !important}
+ .role-card{width:100% !important;max-width:360px !important}
 }
+
+/* ── Role selection cards ── */
+.role-card{
+  width:300px;background:#fff;border-radius:20px;overflow:hidden;cursor:pointer;
+  box-shadow:0 8px 32px rgba(0,0,0,.18);display:flex;flex-direction:column;
+  border:2.5px solid transparent;
+  transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s;
+}
+.role-card:hover{transform:translateY(-10px) scale(1.02);box-shadow:0 20px 56px rgba(0,0,0,.28)}
+.role-card:active{transform:translateY(-3px) scale(.99)}
 `;
 
 /* ─────────────────────────────────────────
@@ -596,6 +610,11 @@ const IBack    = ({s=16}) => I(<><line x1="19" y1="12" x2="5" y2="12"/><polyline
 const IArrowU  = ({s=13}) => I(<polyline points="18 15 12 9 6 15"/>,s,2.5);
 const IArrowD  = ({s=13}) => I(<polyline points="6 9 12 15 18 9"/>,s,2.5);
 const IGrip    = ({s=18}) => I(<><circle cx="9" cy="5" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="19" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="5" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="19" r="1.2" fill="currentColor" stroke="none"/></>,s,0);
+const IUser    = ({s=16}) => I(<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,s);
+const IBrief   = ({s=16}) => I(<><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></>,s);
+const IFile    = ({s=16}) => I(<><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></>,s);
+const IMail    = ({s=16}) => I(<><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></>,s);
+const IPhone   = ({s=16}) => I(<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>,s);
 
 /* ─────────────────────────────────────────
   BTN
@@ -1512,21 +1531,145 @@ function AdminSettingsTab({siteName,setSiteName,repairTypes,setRepairTypes}){
 }
 
 /* ═══════════════════════════════════════════
+  ADMIN — ONGLET DEVIS PARTENAIRES
+═══════════════════════════════════════════ */
+function AdminQuotesTab({quotes,setQuotes}){
+ const news = quotes.filter(q=>q.status==="new");
+ const done = quotes.filter(q=>q.status!=="new");
+
+ function setStatus(id,status){
+   setQuotes(qs=>qs.map(q=>q.id===id?{...q,status}:q));
+ }
+ function remove(id){
+   if(!confirm("Supprimer définitivement cette demande de devis ?"))return;
+   setQuotes(qs=>qs.filter(q=>q.id!==id));
+ }
+
+ const Card = ({q}) => (
+   <div style={{background:"#fff",borderRadius:"var(--r20)",padding:"24px 28px",boxShadow:"var(--sh1)",
+     opacity:q.status==="new"?1:.7,
+     borderLeft:`5px solid ${q.status==="new"?"var(--bl)":q.status==="treated"?"var(--gn)":"var(--g300)"}`}}>
+     <div className="req-card-body" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:"16px"}}>
+       <div style={{flex:1,minWidth:"240px"}}>
+         {/* En-tête entreprise */}
+         <div style={{display:"flex",alignItems:"center",gap:"10px",flexWrap:"wrap",marginBottom:"10px"}}>
+           <span style={{fontWeight:800,fontSize:"19px",color:"var(--g900)"}}>🏢 {q.company}</span>
+           <span className={`tag ${q.status==="new"?"tb":q.status==="treated"?"tg":"tr"}`}>
+             {q.status==="new"?"🆕 Nouveau":q.status==="treated"?"✅ Traité":"🗄️ Archivé"}
+           </span>
+         </div>
+
+         {/* Coordonnées */}
+         <div style={{display:"flex",flexDirection:"column",gap:"5px",marginBottom:"14px",
+           background:"var(--g50)",borderRadius:"12px",padding:"14px 16px"}}>
+           <div style={{fontSize:"14px",color:"var(--g700)",display:"flex",alignItems:"center",gap:"8px"}}>
+             <IUser s={15}/> <strong>{q.contactName}</strong>
+           </div>
+           <div style={{fontSize:"14px",color:"var(--g700)",display:"flex",alignItems:"center",gap:"8px"}}>
+             <IMail s={15}/> <a href={`mailto:${q.email}`} style={{color:"var(--bl)",textDecoration:"none"}}>{q.email}</a>
+           </div>
+           <div style={{fontSize:"14px",color:"var(--g700)",display:"flex",alignItems:"center",gap:"8px"}}>
+             <IPhone s={15}/> <a href={`tel:${q.phone}`} style={{color:"var(--bl)",textDecoration:"none"}}>{q.phone}</a>
+           </div>
+         </div>
+
+         {/* Appareil + interventions */}
+         <div style={{marginBottom:"10px"}}>
+           <div style={{fontSize:"15px",fontWeight:700,color:"var(--g900)",marginBottom:"6px"}}>
+             📱 {q.deviceName}
+             {q.isManualDevice&&<span style={{fontSize:"11px",fontWeight:600,color:"var(--or)",
+               marginLeft:"8px",background:"var(--orBg)",padding:"2px 8px",borderRadius:"20px"}}>Saisie manuelle</span>}
+           </div>
+           <div style={{display:"flex",flexWrap:"wrap",gap:"6px"}}>
+             {q.repairs.map((r,i)=>(
+               <span key={i} style={{fontSize:"13px",background:"var(--bl3)",color:"var(--bl2)",
+                 borderRadius:"8px",padding:"4px 12px",fontWeight:600}}>🔧 {r}</span>
+             ))}
+           </div>
+         </div>
+
+         {q.comment&&(
+           <div style={{background:"var(--g50)",borderRadius:"10px",padding:"10px 14px",fontSize:"13px",
+             color:"var(--g700)",fontStyle:"italic",borderLeft:"3px solid var(--g300)",marginTop:"10px"}}>
+             « {q.comment} »
+           </div>
+         )}
+
+         <div style={{color:"var(--g400)",fontSize:"13px",marginTop:"10px"}}>
+           {new Date(q.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"})}
+         </div>
+       </div>
+
+       {/* Actions */}
+       <div className="req-card-actions" style={{display:"flex",flexDirection:"column",gap:"8px",flexShrink:0}}>
+         {q.status==="new"&&(
+           <Btn size="md" variant="success" onClick={()=>setStatus(q.id,"treated")}>
+             <ICheck/> Marquer traité
+           </Btn>
+         )}
+         {q.status==="treated"&&(
+           <Btn size="md" variant="secondary" onClick={()=>setStatus(q.id,"archived")}>
+             🗄️ Archiver
+           </Btn>
+         )}
+         <Btn size="md" variant="danger" onClick={()=>remove(q.id)}><ITrash/> Supprimer</Btn>
+       </div>
+     </div>
+   </div>
+ );
+
+ return(
+   <div style={{padding:"36px 40px",overflowY:"auto",flex:1}}>
+     {news.length>0&&(
+       <div style={{marginBottom:"32px"}}>
+         <p style={{fontSize:"13px",fontWeight:800,color:"var(--bl)",textTransform:"uppercase",
+           letterSpacing:".5px",marginBottom:"14px"}}>🆕 Nouvelles demandes ({news.length})</p>
+         <div style={{display:"flex",flexDirection:"column",gap:"14px"}}>
+           {[...news].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(q=><Card key={q.id} q={q}/>)}
+         </div>
+       </div>
+     )}
+
+     {done.length>0&&(
+       <div>
+         <p style={{fontSize:"13px",fontWeight:800,color:"var(--g500)",textTransform:"uppercase",
+           letterSpacing:".5px",marginBottom:"14px"}}>Historique ({done.length})</p>
+         <div style={{display:"flex",flexDirection:"column",gap:"14px"}}>
+           {[...done].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(q=><Card key={q.id} q={q}/>)}
+         </div>
+       </div>
+     )}
+
+     {quotes.length===0&&(
+       <div style={{textAlign:"center",padding:"80px 0",color:"var(--g400)"}}>
+         <div style={{fontSize:"56px",marginBottom:"16px"}}>📋</div>
+         <p style={{fontWeight:600,fontSize:"18px"}}>Aucune demande de devis</p>
+         <p style={{fontSize:"14px",marginTop:"6px"}}>Les demandes des partenaires apparaîtront ici.</p>
+       </div>
+     )}
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
   ADMIN DASHBOARD
 ═══════════════════════════════════════════ */
-function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteName,repairTypes,setRepairTypes,onExit}){
+function AdminDashboard({brands,setBrands,requests,setRequests,quotes,setQuotes,siteName,setSiteName,repairTypes,setRepairTypes,onExit}){
  const [tab,setTab] = useState("brands");
  const pendingCount = requests.filter(r=>r.status==="pending").length;
+ const newQuotesCount = quotes.filter(q=>q.status==="new").length;
 
  const tabs = [
    {id:"brands",   label:"Marques & Modèles", icon:<IGrid s={20}/>,   badge:0},
-   {id:"requests", label:"Demandes",            icon:<IBell s={20}/>,   badge:pendingCount},
+   {id:"quotes",   label:"Devis Partenaires",  icon:<IBrief s={20}/>,  badge:newQuotesCount},
+   {id:"requests", label:"Demandes Vendeurs",  icon:<IBell s={20}/>,   badge:pendingCount},
    {id:"settings", label:"Paramètres",         icon:<ISettings s={20}/>,badge:0},
  ];
 
  const tabTitles = {
-   brands:   {title:"Marques & Modèles", sub:"Gérez vos marques et les tarifs de réparation"},
-   requests: {title:"Demandes de prix",    sub:"Suggestions envoyées par les utilisateurs"},
+   brands:   {title:"Marques & Modèles",  sub:"Gérez vos marques et les tarifs de réparation"},
+   quotes:   {title:"Devis Partenaires",  sub:"Demandes de devis envoyées par les partenaires"},
+   requests: {title:"Demandes Vendeurs",  sub:"Suggestions de prix envoyées par les vendeurs"},
    settings: {title:"Paramètres",         sub:"Configuration générale du site"},
  };
 
@@ -1541,7 +1684,7 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
            style={{height:"72px"}} onError={e=>e.target.style.display="none"}/>
          <div>
            <div className="admin-aside-name" style={{fontSize:"22px"}}>{siteName}</div>
-           <div className="admin-aside-sub">Dashboard Admin</div>
+           <div className="admin-aside-sub">Espace Manager</div>
          </div>
        </div>
 
@@ -1559,7 +1702,7 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
 
        <div className="admin-aside-footer">
          <button className="admin-exit-btn" onClick={onExit}>
-           <IEye s={18}/> Vue visiteur
+           <IBack s={18}/> Retour accueil
          </button>
        </div>
      </aside>
@@ -1579,6 +1722,11 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
              </span>
            </div>
          )}
+         {tab==="quotes"&&newQuotesCount>0&&(
+           <span className="tag tb" style={{fontSize:"14px",padding:"6px 14px"}}>
+             {newQuotesCount} nouveau{newQuotesCount>1?"x":""}
+           </span>
+         )}
          {tab==="requests"&&pendingCount>0&&(
            <span className="tag to" style={{fontSize:"14px",padding:"6px 14px"}}>
              {pendingCount} en attente
@@ -1588,6 +1736,7 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
 
        {/* Contenu onglet */}
        {tab==="brands"   &&<AdminBrandsTab brands={brands} setBrands={setBrands}/>}
+       {tab==="quotes"   &&<AdminQuotesTab quotes={quotes} setQuotes={setQuotes}/>}
        {tab==="requests" &&<AdminRequestsTab requests={requests} setRequests={setRequests} setBrands={setBrands}/>}
        {tab==="settings" &&<AdminSettingsTab siteName={siteName} setSiteName={setSiteName} repairTypes={repairTypes} setRepairTypes={setRepairTypes}/>}
      </main>
@@ -1596,10 +1745,11 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
      <nav className="admin-bottomnav">
        <div className="admin-bottomnav-inner">
          {[
-           {id:"brands",   label:"Modèles",    icon:<IGrid s={22}/>},
-           {id:"requests", label:"Demandes",   icon:<IBell s={22}/>, badge:pendingCount},
-           {id:"settings", label:"Paramètres", icon:<ISettings s={22}/>},
-           {id:"exit",     label:"Visiteur",   icon:<IEye s={22}/>},
+           {id:"brands",   label:"Modèles",  icon:<IGrid s={22}/>},
+           {id:"quotes",   label:"Devis",    icon:<IBrief s={22}/>, badge:newQuotesCount},
+           {id:"requests", label:"Demandes", icon:<IBell s={22}/>, badge:pendingCount},
+           {id:"settings", label:"Réglages", icon:<ISettings s={22}/>},
+           {id:"exit",     label:"Accueil",  icon:<IBack s={22}/>},
          ].map(item=>(
            <button key={item.id}
              className={`admin-bottomnav-btn${tab===item.id?" active":""}`}
@@ -1618,36 +1768,387 @@ function AdminDashboard({brands,setBrands,requests,setRequests,siteName,setSiteN
 /* ═══════════════════════════════════════════
   LOGIN
 ═══════════════════════════════════════════ */
-function Login({onSuccess}){
+/* ═══════════════════════════════════════════
+  ÉCRAN D'ACCUEIL — CHOIX DU RÔLE
+═══════════════════════════════════════════ */
+function RoleSelect({siteName,onPickVendeur,onPickManager,onPickPartenaire}){
+ const cards = [
+   {
+     id:"vendeur", icon:<IUser s={30}/>, emoji:"🛒",
+     title:"Espace Vendeur",
+     desc:"Consultez les tarifs de réparation et suggérez des modifications de prix.",
+     accent:"#005BFF", bg:"linear-gradient(135deg,#e8f0ff,#c7d9ff)",
+     onClick:onPickVendeur, cta:"Accès avec code",
+   },
+   {
+     id:"manager", icon:<ISettings s={30}/>, emoji:"🔧",
+     title:"Espace Manager",
+     desc:"Gestion complète : marques, prix, demandes vendeurs et devis partenaires.",
+     accent:"#7c3aed", bg:"linear-gradient(135deg,#f3e8ff,#ddd0ff)",
+     onClick:onPickManager, cta:"Accès avec code",
+   },
+   {
+     id:"partenaire", icon:<IBrief s={30}/>, emoji:"🤝",
+     title:"Espace Partenaire",
+     desc:"Demandez un devis personnalisé pour vos réparations. Aucun code requis.",
+     accent:"#059669", bg:"linear-gradient(135deg,#d1fae5,#a7f3d0)",
+     onClick:onPickPartenaire, cta:"Accès libre",
+   },
+ ];
+
+ return(
+   <div style={{minHeight:"100vh",background:"linear-gradient(150deg,#003DA5,#005BFF 55%,#4D94FF)",
+     fontFamily:"'Outfit',sans-serif",display:"flex",flexDirection:"column",
+     alignItems:"center",justifyContent:"center",padding:"32px 20px"}}>
+     <style>{CSS}</style>
+
+     <div className="aS" style={{textAlign:"center",marginBottom:"44px"}}>
+       <img src="/care-logo.png" alt="Care" style={{height:"84px",objectFit:"contain",
+         filter:"brightness(0) invert(1)",marginBottom:"16px"}}
+         onError={e=>e.target.style.display="none"}/>
+       <h1 style={{fontSize:"36px",fontWeight:900,color:"#fff",letterSpacing:"-.8px",marginBottom:"8px"}}>
+         {siteName}
+       </h1>
+       <p style={{fontSize:"16px",color:"rgba(255,255,255,.75)",fontWeight:500}}>
+         Sélectionnez votre espace d'accès
+       </p>
+     </div>
+
+     <div className="role-grid" style={{display:"flex",gap:"24px",flexWrap:"wrap",
+       justifyContent:"center",maxWidth:"1000px",width:"100%"}}>
+       {cards.map((c,i)=>(
+         <div key={c.id} className="role-card aU" style={{animationDelay:`${i*0.08}s`}}
+           onClick={c.onClick}>
+           <div style={{background:c.bg,padding:"32px 24px",display:"flex",
+             flexDirection:"column",alignItems:"center",gap:"12px"}}>
+             <div style={{width:"72px",height:"72px",borderRadius:"20px",background:"#fff",
+               display:"flex",alignItems:"center",justifyContent:"center",fontSize:"34px",
+               color:c.accent,boxShadow:"0 8px 24px rgba(0,0,0,.12)"}}>
+               {c.emoji}
+             </div>
+           </div>
+           <div style={{background:"#fff",padding:"24px",borderTop:`4px solid ${c.accent}`,
+             flex:1,display:"flex",flexDirection:"column"}}>
+             <h3 style={{fontSize:"20px",fontWeight:800,color:"var(--g900)",marginBottom:"8px"}}>{c.title}</h3>
+             <p style={{fontSize:"14px",color:"var(--g500)",lineHeight:1.5,flex:1,marginBottom:"18px"}}>{c.desc}</p>
+             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+               <span style={{fontSize:"13px",fontWeight:700,color:c.accent}}>{c.cta}</span>
+               <span style={{fontSize:"18px",color:c.accent}}>→</span>
+             </div>
+           </div>
+         </div>
+       ))}
+     </div>
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  LOGIN PAR CODE (Vendeur ou Manager)
+═══════════════════════════════════════════ */
+function Login({role,onSuccess,onBack}){
  const [pwd,setPwd] = useState("");
  const [err,setErr] = useState(false);
+ const cfg = role==="manager"
+   ? {pwd:MANAGER_PWD, title:"Accès Manager",     accent:"#7c3aed", emoji:"🔧"}
+   : {pwd:VENDEUR_PWD, title:"Accès Vendeur",     accent:"#005BFF", emoji:"🛒"};
+
  function tryLogin(){
-   if(pwd===ADMIN_PWD){onSuccess();}
+   if(pwd===cfg.pwd){onSuccess();}
    else{setErr(true);setPwd("");setTimeout(()=>setErr(false),1600);}
  }
  return(
-   <div style={{minHeight:"100vh",background:"linear-gradient(135deg,#003DA5,#005BFF 55%,#4D94FF)",
+   <div style={{minHeight:"100vh",background:`linear-gradient(135deg,${cfg.accent},#005BFF 80%)`,
      display:"flex",alignItems:"center",justifyContent:"center",padding:"20px",fontFamily:"'Outfit',sans-serif"}}>
      <style>{CSS}</style>
      <div className="aS" style={{background:"#fff",borderRadius:"var(--r24)",padding:"44px 40px",
-       width:"100%",maxWidth:"380px",boxShadow:"0 32px 100px rgba(0,0,0,.3)",textAlign:"center"}}>
-       <div style={{fontSize:"48px",marginBottom:"16px"}}>🔐</div>
-       <h2 style={{fontWeight:800,fontSize:"22px",color:"var(--g900)",marginBottom:"6px"}}>Accès administrateur</h2>
-       <p style={{color:"var(--g400)",fontSize:"13px",marginBottom:"28px"}}>
-         Entrez votre mot de passe pour accéder au dashboard
+       width:"100%",maxWidth:"400px",boxShadow:"0 32px 100px rgba(0,0,0,.3)",textAlign:"center"}}>
+       <div style={{fontSize:"48px",marginBottom:"16px"}}>{cfg.emoji}</div>
+       <h2 style={{fontWeight:800,fontSize:"24px",color:"var(--g900)",marginBottom:"6px"}}>{cfg.title}</h2>
+       <p style={{color:"var(--g400)",fontSize:"14px",marginBottom:"28px"}}>
+         Entrez votre code d'accès
        </p>
-       <input type="password" placeholder="Mot de passe" value={pwd}
+       <input type="password" placeholder="Code d'accès" value={pwd}
          onChange={e=>setPwd(e.target.value)} onKeyDown={e=>e.key==="Enter"&&tryLogin()}
          style={{width:"100%",background:err?"#fff5f5":"var(--g50)",
            border:`1.5px solid ${err?"var(--rd)":"var(--g200)"}`,borderRadius:"10px",
-           padding:"12px 16px",fontSize:"14px",color:"var(--g900)",outline:"none",
-           boxSizing:"border-box",marginBottom:"8px",transition:"border-color .2s"}}
+           padding:"14px 16px",fontSize:"15px",color:"var(--g900)",outline:"none",
+           boxSizing:"border-box",marginBottom:"8px",transition:"border-color .2s",textAlign:"center"}}
          autoFocus/>
-       {err&&<p style={{color:"var(--rd)",fontSize:"12px",fontWeight:600,marginBottom:"8px"}}>
-         Mot de passe incorrect
+       {err&&<p style={{color:"var(--rd)",fontSize:"13px",fontWeight:600,marginBottom:"8px"}}>
+         Code incorrect
        </p>}
-       <Btn full size="lg" onClick={tryLogin}><ILock/> Se connecter</Btn>
+       <Btn full size="lg" onClick={tryLogin} style={{background:cfg.accent,marginTop:"6px"}}>
+         <ILock/> Se connecter
+       </Btn>
+       <button onClick={onBack} style={{background:"none",border:"none",color:"var(--g400)",
+         fontSize:"14px",fontWeight:600,cursor:"pointer",marginTop:"18px",display:"inline-flex",
+         alignItems:"center",gap:"6px"}}>
+         <IBack s={14}/> Retour à l'accueil
+       </button>
      </div>
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
+  ESPACE PARTENAIRE — DEMANDE DE DEVIS (sans prix)
+═══════════════════════════════════════════ */
+function PartnerView({brands,siteName,repairTypes,onQuote,onBack}){
+ const [company, setCompany]   = useState("");
+ const [name,    setName]      = useState("");
+ const [email,   setEmail]     = useState("");
+ const [phone,   setPhone]     = useState("");
+ const [brandId, setBrandId]   = useState("");
+ const [modelId, setModelId]   = useState("");
+ const [manualDevice, setManualDevice] = useState("");
+ const [useManual, setUseManual] = useState(false);
+ const [selectedRepairs, setSelectedRepairs] = useState([]);
+ const [manualRepair, setManualRepair] = useState("");
+ const [comment, setComment]   = useState("");
+ const [errors,  setErrors]    = useState({});
+ const [sent,    setSent]      = useState(false);
+
+ const brand  = brands.find(b=>b.id===brandId);
+ const models = brand ? [...brand.models].sort((a,b)=>a.order-b.order) : [];
+
+ function toggleRepair(id){
+   setSelectedRepairs(rs=> rs.includes(id) ? rs.filter(x=>x!==id) : [...rs,id]);
+ }
+
+ function validate(){
+   const e = {};
+   if(!company.trim()) e.company = true;
+   if(!name.trim())    e.name = true;
+   if(!email.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) e.email = true;
+   if(!phone.trim())   e.phone = true;
+   const deviceOk = useManual ? manualDevice.trim() : (brandId && modelId);
+   if(!deviceOk) e.device = true;
+   const repairOk = selectedRepairs.length>0 || manualRepair.trim();
+   if(!repairOk) e.repair = true;
+   setErrors(e);
+   return Object.keys(e).length===0;
+ }
+
+ function submit(){
+   if(!validate()) return;
+   const deviceName = useManual
+     ? manualDevice.trim()
+     : `${brand?.name||""} ${models.find(m=>m.id===modelId)?.name||""}`.trim();
+   const repairLabels = [
+     ...selectedRepairs.map(id=>repairTypes.find(r=>r.id===id)?.label||id),
+     ...(manualRepair.trim() ? [manualRepair.trim()+" (manuel)"] : [])
+   ];
+   const quote = {
+     id: uid(),
+     date: new Date().toISOString(),
+     status: "new",
+     company: company.trim(),
+     contactName: name.trim(),
+     email: email.trim(),
+     phone: phone.trim(),
+     deviceName,
+     isManualDevice: useManual,
+     repairs: repairLabels,
+     comment: comment.trim(),
+   };
+   onQuote(quote);
+   setSent(true);
+ }
+
+ const field = (label,val,setter,key,type="text",placeholder="",icon=null)=>(
+   <div style={{marginBottom:"16px"}}>
+     <label style={{display:"block",fontSize:"12px",fontWeight:700,color:"var(--g600)",
+       marginBottom:"6px"}}>{label}</label>
+     <div style={{position:"relative"}}>
+       {icon&&<span style={{position:"absolute",left:"12px",top:"50%",transform:"translateY(-50%)",
+         color:"var(--g400)",display:"flex",pointerEvents:"none"}}>{icon}</span>}
+       <input type={type} value={val} onChange={e=>setter(e.target.value)} placeholder={placeholder}
+         style={{width:"100%",background:"#fff",
+           border:`1.5px solid ${errors[key]?"var(--rd)":"var(--g200)"}`,borderRadius:"10px",
+           padding:icon?"13px 14px 13px 40px":"13px 14px",fontSize:"15px",color:"var(--g900)",
+           outline:"none",boxSizing:"border-box"}}/>
+     </div>
+     {errors[key]&&<p style={{color:"var(--rd)",fontSize:"12px",fontWeight:600,marginTop:"4px"}}>Champ requis</p>}
+   </div>
+ );
+
+ if(sent) return(
+   <div style={{minHeight:"100vh",background:"linear-gradient(150deg,#d1fae5,#a7f3d0)",
+     fontFamily:"'Outfit',sans-serif",display:"flex",alignItems:"center",justifyContent:"center",padding:"20px"}}>
+     <style>{CSS}</style>
+     <div className="aS" style={{background:"#fff",borderRadius:"var(--r24)",padding:"48px 40px",
+       maxWidth:"460px",textAlign:"center",boxShadow:"0 32px 100px rgba(0,0,0,.2)"}}>
+       <div style={{fontSize:"64px",marginBottom:"16px"}}>✅</div>
+       <h2 style={{fontSize:"26px",fontWeight:800,color:"var(--g900)",marginBottom:"12px"}}>Demande envoyée !</h2>
+       <p style={{fontSize:"15px",color:"var(--g500)",lineHeight:1.6,marginBottom:"28px"}}>
+         Merci {name}. Votre demande de devis a bien été transmise à notre équipe.
+         Nous vous recontacterons rapidement à <strong>{email}</strong>.
+       </p>
+       <Btn size="lg" variant="success" onClick={onBack} full>
+         <IBack/> Retour à l'accueil
+       </Btn>
+     </div>
+   </div>
+ );
+
+ return(
+   <div style={{minHeight:"100vh",background:"#eef2f7",fontFamily:"'Outfit',sans-serif"}}>
+     <style>{CSS}</style>
+
+     {/* Header */}
+     <header style={{background:"linear-gradient(135deg,#059669,#10b981)",padding:"0 24px",
+       boxShadow:"0 2px 28px rgba(5,150,105,.3)",position:"sticky",top:0,zIndex:100}}>
+       <div style={{maxWidth:"800px",margin:"0 auto",display:"flex",alignItems:"center",
+         justifyContent:"space-between",height:"76px",gap:"12px"}}>
+         <button onClick={onBack} style={{background:"rgba(255,255,255,.2)",border:"1px solid rgba(255,255,255,.3)",
+           borderRadius:"10px",color:"#fff",padding:"10px 14px",cursor:"pointer",display:"flex",
+           alignItems:"center",gap:"8px",fontSize:"14px",fontWeight:600}}>
+           <IBack/> <span className="header-retour-text">Accueil</span>
+         </button>
+         <div style={{display:"flex",alignItems:"center",gap:"12px"}}>
+           <img src="/care-logo.png" alt="Care" style={{height:"44px",objectFit:"contain",
+             filter:"brightness(0) invert(1)"}} onError={e=>e.target.style.display="none"}/>
+           <div style={{textAlign:"right"}}>
+             <div style={{fontWeight:900,fontSize:"20px",color:"#fff"}}>Espace Partenaire</div>
+             <div style={{fontSize:"11px",color:"rgba(255,255,255,.8)"}}>Demande de devis</div>
+           </div>
+         </div>
+       </div>
+     </header>
+
+     <main style={{maxWidth:"800px",margin:"0 auto",padding:"32px 24px 80px"}}>
+       <div className="aU" style={{background:"#fff",borderRadius:"20px",padding:"32px",
+         boxShadow:"0 4px 24px rgba(0,0,0,.06)",marginBottom:"20px"}}>
+         <h2 style={{fontSize:"24px",fontWeight:800,color:"var(--g900)",marginBottom:"6px"}}>
+           Demande de devis
+         </h2>
+         <p style={{fontSize:"15px",color:"var(--g500)",marginBottom:"28px"}}>
+           Renseignez l'appareil, le type d'intervention et vos coordonnées.
+           Notre équipe établira un devis personnalisé.
+         </p>
+
+         {/* Coordonnées entreprise */}
+         <div style={{marginBottom:"28px"}}>
+           <h3 style={{fontSize:"13px",fontWeight:800,color:"var(--g500)",textTransform:"uppercase",
+             letterSpacing:".6px",marginBottom:"14px"}}>🏢 Vos coordonnées</h3>
+           {field("Nom de l'entreprise *",company,setCompany,"company","text","Ex : Ma Boutique SARL",<IBrief s={16}/>)}
+           {field("Nom du contact *",name,setName,"name","text","Ex : Jean Dupont",<IUser s={16}/>)}
+           {field("Email *",email,setEmail,"email","email","contact@entreprise.fr",<IMail s={16}/>)}
+           {field("Téléphone *",phone,setPhone,"phone","tel","06 12 34 56 78",<IPhone s={16}/>)}
+         </div>
+
+         {/* Appareil */}
+         <div style={{marginBottom:"28px"}}>
+           <h3 style={{fontSize:"13px",fontWeight:800,color:"var(--g500)",textTransform:"uppercase",
+             letterSpacing:".6px",marginBottom:"14px"}}>📱 Appareil concerné</h3>
+
+           <div style={{display:"flex",gap:"8px",marginBottom:"16px"}}>
+             <button onClick={()=>setUseManual(false)}
+               style={{flex:1,padding:"10px",borderRadius:"10px",fontSize:"13px",fontWeight:700,
+                 cursor:"pointer",border:`1.5px solid ${!useManual?"#059669":"var(--g200)"}`,
+                 background:!useManual?"#d1fae5":"#fff",color:!useManual?"#059669":"var(--g500)"}}>
+               Choisir dans la liste
+             </button>
+             <button onClick={()=>setUseManual(true)}
+               style={{flex:1,padding:"10px",borderRadius:"10px",fontSize:"13px",fontWeight:700,
+                 cursor:"pointer",border:`1.5px solid ${useManual?"#059669":"var(--g200)"}`,
+                 background:useManual?"#d1fae5":"#fff",color:useManual?"#059669":"var(--g500)"}}>
+               Saisir manuellement
+             </button>
+           </div>
+
+           {!useManual ? (
+             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"12px"}}>
+               <div>
+                 <label style={{display:"block",fontSize:"12px",fontWeight:700,color:"var(--g600)",marginBottom:"6px"}}>Marque</label>
+                 <select value={brandId} onChange={e=>{setBrandId(e.target.value);setModelId("");}}
+                   style={{width:"100%",padding:"13px 14px",borderRadius:"10px",fontSize:"15px",
+                     border:`1.5px solid ${errors.device?"var(--rd)":"var(--g200)"}`,background:"#fff",
+                     color:"var(--g900)",outline:"none",boxSizing:"border-box",cursor:"pointer"}}>
+                   <option value="">— Choisir —</option>
+                   {brands.map(b=><option key={b.id} value={b.id}>{b.name}</option>)}
+                 </select>
+               </div>
+               <div>
+                 <label style={{display:"block",fontSize:"12px",fontWeight:700,color:"var(--g600)",marginBottom:"6px"}}>Modèle</label>
+                 <select value={modelId} onChange={e=>setModelId(e.target.value)} disabled={!brandId}
+                   style={{width:"100%",padding:"13px 14px",borderRadius:"10px",fontSize:"15px",
+                     border:`1.5px solid ${errors.device?"var(--rd)":"var(--g200)"}`,
+                     background:brandId?"#fff":"var(--g100)",color:"var(--g900)",outline:"none",
+                     boxSizing:"border-box",cursor:brandId?"pointer":"not-allowed"}}>
+                   <option value="">— Choisir —</option>
+                   {models.map(m=><option key={m.id} value={m.id}>{m.name}</option>)}
+                 </select>
+               </div>
+             </div>
+           ) : (
+             <div>
+               <label style={{display:"block",fontSize:"12px",fontWeight:700,color:"var(--g600)",marginBottom:"6px"}}>
+                 Appareil (marque + modèle)
+               </label>
+               <input value={manualDevice} onChange={e=>setManualDevice(e.target.value)}
+                 placeholder="Ex : Nokia G22, Wiko View 5…"
+                 style={{width:"100%",padding:"13px 14px",borderRadius:"10px",fontSize:"15px",
+                   border:`1.5px solid ${errors.device?"var(--rd)":"var(--g200)"}`,background:"#fff",
+                   color:"var(--g900)",outline:"none",boxSizing:"border-box"}}/>
+             </div>
+           )}
+           {errors.device&&<p style={{color:"var(--rd)",fontSize:"12px",fontWeight:600,marginTop:"6px"}}>
+             Sélectionnez ou saisissez un appareil
+           </p>}
+         </div>
+
+         {/* Type d'intervention */}
+         <div style={{marginBottom:"28px"}}>
+           <h3 style={{fontSize:"13px",fontWeight:800,color:"var(--g500)",textTransform:"uppercase",
+             letterSpacing:".6px",marginBottom:"14px"}}>🔧 Type(s) d'intervention</h3>
+           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:"10px",marginBottom:"14px"}}>
+             {repairTypes.map(rt=>{
+               const on = selectedRepairs.includes(rt.id);
+               return(
+                 <button key={rt.id} onClick={()=>toggleRepair(rt.id)}
+                   style={{display:"flex",alignItems:"center",gap:"10px",padding:"14px",borderRadius:"12px",
+                     cursor:"pointer",textAlign:"left",transition:"all .15s",
+                     border:`1.5px solid ${on?"#059669":"var(--g200)"}`,
+                     background:on?"#d1fae5":"#fff"}}>
+                   <span style={{fontSize:"22px"}}>{rt.icon}</span>
+                   <span style={{fontSize:"14px",fontWeight:on?700:500,color:on?"#065f46":"var(--g700)"}}>{rt.label}</span>
+                   {on&&<span style={{marginLeft:"auto",color:"#059669"}}><ICheck s={18}/></span>}
+                 </button>
+               );
+             })}
+           </div>
+           <label style={{display:"block",fontSize:"12px",fontWeight:700,color:"var(--g600)",marginBottom:"6px"}}>
+             Autre intervention (optionnel)
+           </label>
+           <input value={manualRepair} onChange={e=>setManualRepair(e.target.value)}
+             placeholder="Ex : Désoxydation, récupération de données…"
+             style={{width:"100%",padding:"13px 14px",borderRadius:"10px",fontSize:"15px",
+               border:"1.5px solid var(--g200)",background:"#fff",color:"var(--g900)",
+               outline:"none",boxSizing:"border-box"}}/>
+           {errors.repair&&<p style={{color:"var(--rd)",fontSize:"12px",fontWeight:600,marginTop:"6px"}}>
+             Sélectionnez au moins une intervention
+           </p>}
+         </div>
+
+         {/* Commentaire */}
+         <div style={{marginBottom:"28px"}}>
+           <label style={{display:"block",fontSize:"12px",fontWeight:700,color:"var(--g600)",marginBottom:"6px"}}>
+             Commentaire (optionnel)
+           </label>
+           <textarea value={comment} onChange={e=>setComment(e.target.value)} rows={3}
+             placeholder="Précisions sur l'état de l'appareil, quantité, délai souhaité…"
+             style={{width:"100%",padding:"13px 14px",borderRadius:"10px",fontSize:"15px",
+               border:"1.5px solid var(--g200)",background:"#fff",color:"var(--g900)",
+               outline:"none",boxSizing:"border-box",resize:"vertical",fontFamily:"'Outfit',sans-serif"}}/>
+         </div>
+
+         <Btn size="lg" variant="success" full onClick={submit}>
+           <IFile/> Envoyer ma demande de devis
+         </Btn>
+       </div>
+     </main>
    </div>
  );
 }
@@ -1658,11 +2159,13 @@ function Login({onSuccess}){
 export default function App(){
  const [brands,      setBrands]      = useState(DEFAULT_BRANDS);
  const [requests,    setRequests]    = useState([]);
+ const [quotes,      setQuotes]      = useState([]);
  const [siteName,    setSiteName]    = useState("Renki Reparation");
  const [repairTypes, setRepairTypes] = useState(DEFAULT_REPAIR_TYPES);
  const [loaded,      setLoaded]      = useState(false);
- const [view,        setView]        = useState("public");
- const [adminAuth,   setAdminAuth]   = useState(false);
+ const [view,        setView]        = useState("home");  // home | vendeur | manager | login | partenaire
+ const [loginRole,   setLoginRole]   = useState(null);    // "vendeur" | "manager"
+ const [role,        setRole]        = useState(null);    // rôle authentifié
 
  /* ── Chargement initial depuis Firestore ── */
  useEffect(()=>{
@@ -1695,6 +2198,7 @@ export default function App(){
          }
 
          if(d.requests)                            setRequests(d.requests);
+         if(d.quotes)                              setQuotes(d.quotes);
          if(d.siteName && d.siteName.trim())        setSiteName(d.siteName);
          if(d.repairTypes && d.repairTypes.length)  setRepairTypes(d.repairTypes);
        }
@@ -1713,16 +2217,20 @@ export default function App(){
        const {doc,setDoc,getFirestore}=await import("firebase/firestore");
        const db=getFirestore();
        await setDoc(doc(db,"site","data"),
-         {brands, requests, siteName, repairTypes},
+         {brands, requests, quotes, siteName, repairTypes},
          {merge:false}   // overwrite complet = pas de données fantômes
        );
      }catch(e){console.error("Firestore save error",e);}
    }, 800);
    return ()=>clearTimeout(timer); // annule si un autre changement arrive avant 800ms
- },[brands, requests, siteName, repairTypes, loaded]);
+ },[brands, requests, quotes, siteName, repairTypes, loaded]);
 
  const onSuggest = useCallback((req)=>{
    setRequests(rs=>[...rs,req]);
+ },[]);
+
+ const onQuote = useCallback((q)=>{
+   setQuotes(qs=>[...qs,q]);
  },[]);
 
  if(!loaded) return(
@@ -1738,25 +2246,59 @@ export default function App(){
 
  return(
    <>
-     {view==="public"&&(
+     {/* Écran d'accueil : choix du rôle */}
+     {view==="home"&&(
+       <RoleSelect
+         siteName={siteName}
+         onPickVendeur={()=> role==="vendeur"||role==="manager" ? setView("vendeur") : (setLoginRole("vendeur"),setView("login"))}
+         onPickManager={()=> role==="manager" ? setView("manager") : (setLoginRole("manager"),setView("login"))}
+         onPickPartenaire={()=>setView("partenaire")}
+       />
+     )}
+
+     {/* Login par code */}
+     {view==="login"&&(
+       <Login
+         role={loginRole}
+         onSuccess={()=>{
+           setRole(loginRole);
+           setView(loginRole==="manager"?"manager":"vendeur");
+         }}
+         onBack={()=>setView("home")}
+       />
+     )}
+
+     {/* Espace Vendeur = consultation prix + suggestions */}
+     {view==="vendeur"&&(
        <PublicView
          brands={brands}
          siteName={siteName}
          repairTypes={repairTypes}
          onSuggest={onSuggest}
-         onAdminClick={()=>adminAuth?setView("admin"):setView("login")}
+         onAdminClick={()=> role==="manager" ? setView("manager") : setView("home")}
        />
      )}
-     {view==="login"&&(
-       <Login onSuccess={()=>{setAdminAuth(true);setView("admin");}}/>
+
+     {/* Espace Partenaire = demande de devis sans prix */}
+     {view==="partenaire"&&(
+       <PartnerView
+         brands={brands}
+         siteName={siteName}
+         repairTypes={repairTypes}
+         onQuote={onQuote}
+         onBack={()=>setView("home")}
+       />
      )}
-     {view==="admin"&&adminAuth&&(
+
+     {/* Espace Manager = dashboard complet */}
+     {view==="manager"&&role==="manager"&&(
        <AdminDashboard
          brands={brands}           setBrands={setBrands}
          requests={requests}       setRequests={setRequests}
+         quotes={quotes}           setQuotes={setQuotes}
          siteName={siteName}       setSiteName={setSiteName}
          repairTypes={repairTypes} setRepairTypes={setRepairTypes}
-         onExit={()=>setView("public")}
+         onExit={()=>setView("home")}
        />
      )}
    </>
