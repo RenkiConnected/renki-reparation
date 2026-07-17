@@ -2208,21 +2208,46 @@ export default function App(){
  },[]);
 
  /* ── Sauvegarde unique avec debounce 800ms ──
-    UN SEUL useEffect qui réagit à TOUS les états ensemble
-    → pas de race condition, pas d'écrasement mutuel       */
+    Avant d'écrire, on RE-LIT Firebase et on fusionne les
+    quotes + requests pour ne JAMAIS écraser ce qu'un autre
+    appareil (partenaire, vendeur) a ajouté entre-temps.      */
  useEffect(()=>{
    if(!loaded) return;
    const timer = setTimeout(async()=>{
      try{
-       const {doc,setDoc,getFirestore}=await import("firebase/firestore");
+       const {doc,getDoc,setDoc,getFirestore}=await import("firebase/firestore");
        const db=getFirestore();
+
+       // Re-lecture pour récupérer les ajouts récents des autres appareils
+       let remoteQuotes = [];
+       let remoteRequests = [];
+       try{
+         const snap = await getDoc(doc(db,"site","data"));
+         if(snap.exists()){
+           const d = snap.data();
+           remoteQuotes   = Array.isArray(d.quotes)   ? d.quotes   : [];
+           remoteRequests = Array.isArray(d.requests) ? d.requests : [];
+         }
+       }catch(_){}
+
+       // Fusion par id : on garde tous les quotes/requests connus,
+       // locaux + distants, sans doublon (les modifs locales priment)
+       const mergeById = (local, remote) => {
+         const map = new Map();
+         remote.forEach(x=>map.set(x.id, x));
+         local.forEach(x=>map.set(x.id, x)); // local écrase distant (statut modifié)
+         return [...map.values()];
+       };
+       const mergedQuotes   = mergeById(quotes,   remoteQuotes);
+       const mergedRequests = mergeById(requests, remoteRequests);
+
        await setDoc(doc(db,"site","data"),
-         {brands, requests, quotes, siteName, repairTypes},
-         {merge:false}   // overwrite complet = pas de données fantômes
+         {brands, requests:mergedRequests, quotes:mergedQuotes, siteName, repairTypes},
+         {merge:false}
        );
      }catch(e){console.error("Firestore save error",e);}
    }, 800);
-   return ()=>clearTimeout(timer); // annule si un autre changement arrive avant 800ms
+   return ()=>clearTimeout(timer);
  },[brands, requests, quotes, siteName, repairTypes, loaded]);
 
  const onSuggest = useCallback((req)=>{
@@ -2232,6 +2257,40 @@ export default function App(){
  const onQuote = useCallback((q)=>{
    setQuotes(qs=>[...qs,q]);
  },[]);
+
+ /* ── Rafraîchissement auto pour le manager ──
+    Toutes les 15s, re-lit Firebase et récupère les nouveaux
+    devis + demandes sans que le manager ait à recharger.     */
+ useEffect(()=>{
+   if(view!=="manager" || !loaded) return;
+   const interval = setInterval(async()=>{
+     try{
+       const {doc,getDoc,getFirestore}=await import("firebase/firestore");
+       const db=getFirestore();
+       const snap=await getDoc(doc(db,"site","data"));
+       if(snap.exists()){
+         const d=snap.data();
+         if(Array.isArray(d.quotes)){
+           setQuotes(prev=>{
+             const map=new Map();
+             d.quotes.forEach(x=>map.set(x.id,x));
+             prev.forEach(x=>map.set(x.id,x)); // garde les modifs locales
+             return [...map.values()];
+           });
+         }
+         if(Array.isArray(d.requests)){
+           setRequests(prev=>{
+             const map=new Map();
+             d.requests.forEach(x=>map.set(x.id,x));
+             prev.forEach(x=>map.set(x.id,x));
+             return [...map.values()];
+           });
+         }
+       }
+     }catch(_){}
+   }, 15000);
+   return ()=>clearInterval(interval);
+ },[view, loaded]);
 
  if(!loaded) return(
    <div style={{minHeight:"100vh",background:"var(--bl)",display:"flex",alignItems:"center",
