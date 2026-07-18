@@ -12,6 +12,25 @@ const SK_SITE     = "rr_v6_site";
 const SK_REQUESTS = "rr_v6_requests";
 const SK_RTYPES   = "rr_v6_rtypes";
 
+/* ── Informations légales de la société (pour devis) ── */
+const SOCIETE = {
+  nom:        "RENKI CONNECTED",
+  enseigne:   "CARE — Réparation Smartphone & Tablette",
+  forme:      "SARL au capital de 7 000 €",
+  adresse:    "100 Chemin du Gour de l'Oule",
+  cp_ville:   "13420 GÉMENOS",
+  siret:      "822 029 062 00087",
+  siren:      "822 029 062",
+  tva:        "FR35822029062",
+  rcs:        "822 029 062 R.C.S. Marseille",
+  ape:        "47.42Z",
+  gerant:     "Yannis Decavallas",
+  tel:        "",
+  email:      "",
+};
+const TVA_RATE = 0.20;                // TVA 20 %
+const DEVIS_VALIDITE_JOURS = 14;      // validité légale minimum
+
 const DEFAULT_REPAIR_TYPES = [
  { id:"ecran_o",  label:"Écran Origine",          icon:"📱" },
  { id:"ecran_c",  label:"Écran Compatible",        icon:"🖥️" },
@@ -1531,11 +1550,317 @@ function AdminSettingsTab({siteName,setSiteName,repairTypes,setRepairTypes}){
 }
 
 /* ═══════════════════════════════════════════
+  GÉNÉRATION PDF DU DEVIS (jsPDF via CDN)
+═══════════════════════════════════════════ */
+async function loadJsPDF(){
+  if(window.jspdf && window.jspdf.jsPDF) return window.jspdf.jsPDF;
+  await new Promise((res,rej)=>{
+    const s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
+    s.onload=res; s.onerror=rej; document.head.appendChild(s);
+  });
+  return window.jspdf.jsPDF;
+}
+
+async function imgToDataURL(url){
+  try{
+    const resp=await fetch(url);
+    const blob=await resp.blob();
+    return await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(blob);});
+  }catch(_){return null;}
+}
+
+async function generateDevisPDF(devis, preview=false){
+  const jsPDF = await loadJsPDF();
+  const doc = new jsPDF({unit:"mm",format:"a4"});
+  const W = 210, M = 16;
+  let y = 14;
+
+  const teal=[10,160,160], dark=[38,50,66], grey=[110,120,130], light=[240,243,247];
+
+  // ── Logo ──
+  const logo = await imgToDataURL("/care-logo-full.png");
+  if(logo){
+    try{ doc.addImage(logo, "PNG", M, y, 46, 17); }catch(_){}
+  } else {
+    doc.setFontSize(24); doc.setTextColor(...teal); doc.setFont("helvetica","bold");
+    doc.text("CARE", M, y+12);
+  }
+
+  // ── Bloc société (droite) ──
+  doc.setFontSize(9); doc.setTextColor(...dark); doc.setFont("helvetica","bold");
+  doc.text(SOCIETE.nom, W-M, y+2, {align:"right"});
+  doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...grey);
+  const soc = [
+    SOCIETE.forme,
+    SOCIETE.adresse,
+    SOCIETE.cp_ville,
+    `SIRET : ${SOCIETE.siret}`,
+    `TVA : ${SOCIETE.tva}`,
+    SOCIETE.rcs,
+  ];
+  let sy=y+7; soc.forEach(l=>{doc.text(l, W-M, sy, {align:"right"}); sy+=4;});
+
+  y = Math.max(y+22, sy+2);
+
+  // ── Bandeau titre ──
+  doc.setFillColor(...teal);
+  doc.rect(M, y, W-2*M, 12, "F");
+  doc.setTextColor(255,255,255); doc.setFontSize(15); doc.setFont("helvetica","bold");
+  doc.text("DEVIS", M+4, y+8);
+  doc.setFontSize(10); doc.setFont("helvetica","normal");
+  doc.text(`N° ${devis.number}`, W-M-4, y+8, {align:"right"});
+  y += 18;
+
+  // ── Dates ──
+  const dateEmission = new Date(devis.dateEmission);
+  const dateValid = new Date(dateEmission.getTime() + DEVIS_VALIDITE_JOURS*86400000);
+  const fmt = d=>d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"});
+  doc.setTextColor(...grey); doc.setFontSize(9);
+  doc.text(`Date d'émission : ${fmt(dateEmission)}`, M, y);
+  doc.text(`Valable jusqu'au : ${fmt(dateValid)}`, W-M, y, {align:"right"});
+  y += 8;
+
+  // ── Bloc client ──
+  doc.setFillColor(...light); doc.rect(M, y, W-2*M, 26, "F");
+  doc.setTextColor(...teal); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("CLIENT", M+3, y+5);
+  doc.setTextColor(...dark); doc.setFontSize(10);
+  doc.text(devis.company||"—", M+3, y+11);
+  doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...grey);
+  doc.text(devis.contactName||"", M+3, y+16);
+  doc.text(devis.email||"", M+3, y+20);
+  doc.text(devis.phone||"", M+3, y+24);
+  // Appareil (droite du bloc)
+  doc.setFont("helvetica","bold"); doc.setFontSize(8); doc.setTextColor(...teal);
+  doc.text("APPAREIL", W-M-70, y+5);
+  doc.setTextColor(...dark); doc.setFontSize(10); doc.setFont("helvetica","normal");
+  doc.text(devis.deviceName||"—", W-M-70, y+11, {maxWidth:66});
+  y += 32;
+
+  // ── Tableau lignes ──
+  const cols = {desc:M+2, qty:118, pu:140, tva:160, ttc:W-M-2};
+  doc.setFillColor(...dark); doc.rect(M, y, W-2*M, 8, "F");
+  doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont("helvetica","bold");
+  doc.text("DÉSIGNATION", cols.desc, y+5.5);
+  doc.text("Qté", cols.qty, y+5.5, {align:"center"});
+  doc.text("P.U. HT", cols.pu, y+5.5, {align:"right"});
+  doc.text("TVA", cols.tva, y+5.5, {align:"right"});
+  doc.text("Total TTC", cols.ttc, y+5.5, {align:"right"});
+  y += 8;
+
+  doc.setFont("helvetica","normal"); doc.setTextColor(...dark); doc.setFontSize(9);
+  let totalHT=0, totalTVA=0;
+  devis.lines.forEach((ln,i)=>{
+    const puHT = Number(ln.puHT)||0;
+    const qty  = Number(ln.qty)||1;
+    const ht   = puHT*qty;
+    const tva  = ht*TVA_RATE;
+    const ttc  = ht+tva;
+    totalHT+=ht; totalTVA+=tva;
+    if(i%2===1){doc.setFillColor(248,250,252); doc.rect(M, y, W-2*M, 8, "F");}
+    const desc = ln.label + (ln.piece?` — ${ln.piece}`:"");
+    doc.text(desc, cols.desc, y+5.5, {maxWidth:96});
+    doc.text(String(qty), cols.qty, y+5.5, {align:"center"});
+    doc.text(`${puHT.toFixed(2)} €`, cols.pu, y+5.5, {align:"right"});
+    doc.text("20 %", cols.tva, y+5.5, {align:"right"});
+    doc.text(`${ttc.toFixed(2)} €`, cols.ttc, y+5.5, {align:"right"});
+    y += 8;
+  });
+
+  const totalTTC = totalHT+totalTVA;
+
+  // ── Totaux ──
+  y += 4;
+  const tx = W-M-70;
+  doc.setDrawColor(...light); doc.line(tx, y, W-M, y); y+=6;
+  doc.setFontSize(9); doc.setTextColor(...grey); doc.setFont("helvetica","normal");
+  doc.text("Total HT", tx, y); doc.setTextColor(...dark);
+  doc.text(`${totalHT.toFixed(2)} €`, W-M, y, {align:"right"}); y+=6;
+  doc.setTextColor(...grey);
+  doc.text("TVA 20 %", tx, y); doc.setTextColor(...dark);
+  doc.text(`${totalTVA.toFixed(2)} €`, W-M, y, {align:"right"}); y+=8;
+  doc.setFillColor(...teal); doc.rect(tx-2, y-6, (W-M)-(tx-2)+2, 10, "F");
+  doc.setTextColor(255,255,255); doc.setFont("helvetica","bold"); doc.setFontSize(11);
+  doc.text("TOTAL TTC", tx, y); doc.text(`${totalTTC.toFixed(2)} €`, W-M, y, {align:"right"});
+  y += 14;
+
+  // ── Mentions légales ──
+  doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(...grey);
+  const mentions = [
+    `Devis valable ${DEVIS_VALIDITE_JOURS} jours à compter de la date d'émission, conformément à l'article L.111-1 du Code de la consommation.`,
+    `Devis gratuit et sans engagement. Bon pour accord à retourner daté et signé avec la mention manuscrite « Bon pour accord ».`,
+    `TVA acquittée sur les débits. Prix exprimés en euros. Règlement à réception de facture.`,
+    `${SOCIETE.nom} — ${SOCIETE.forme} — RCS ${SOCIETE.rcs} — SIRET ${SOCIETE.siret} — APE ${SOCIETE.ape} — TVA intracom. ${SOCIETE.tva}.`,
+    `Siège social : ${SOCIETE.adresse}, ${SOCIETE.cp_ville}. Gérant : ${SOCIETE.gerant}.`,
+  ];
+  mentions.forEach(m=>{const lines=doc.splitTextToSize(m, W-2*M); doc.text(lines, M, y); y+=lines.length*3.6;});
+
+  // ── Zone signature ──
+  y = Math.max(y+6, 250);
+  doc.setDrawColor(...grey); doc.setFontSize(8); doc.setTextColor(...dark);
+  doc.rect(W-M-60, y, 60, 26);
+  doc.setFont("helvetica","bold"); doc.text("Bon pour accord", W-M-57, y+5);
+  doc.setFont("helvetica","normal"); doc.setFontSize(7); doc.setTextColor(...grey);
+  doc.text("Date et signature du client", W-M-57, y+9);
+
+  // ── Pied ──
+  doc.setFontSize(7.5); doc.setTextColor(...teal); doc.setFont("helvetica","bold");
+  doc.text(`${SOCIETE.enseigne}`, W/2, 288, {align:"center"});
+
+  const filename = `Devis_${devis.number}_${(devis.company||"client").replace(/[^a-zA-Z0-9]/g,"_")}.pdf`;
+  if(preview){
+    return doc.output("datauristring");
+  }
+  doc.save(filename);
+  return doc.output("datauristring");
+}
+
+/* ═══════════════════════════════════════════
+  ÉDITEUR DE DEVIS (modale)
+═══════════════════════════════════════════ */
+function DevisEditor({quote, existingDevis, onClose, onSave}){
+ const [number]   = useState(existingDevis?.number || `DV-${new Date().getFullYear()}-${String(Date.now()).slice(-5)}`);
+ const [lines,setLines] = useState(existingDevis?.lines || [
+   { id:uid(), label:"", piece:"", qty:1, puHT:"" }
+ ]);
+ const [previewUrl, setPreviewUrl] = useState(null);
+ const [generating, setGenerating] = useState(false);
+
+ function addLine(){ setLines(ls=>[...ls,{id:uid(),label:"",piece:"",qty:1,puHT:""}]); }
+ function delLine(id){ setLines(ls=>ls.filter(l=>l.id!==id)); }
+ function updLine(id,field,val){ setLines(ls=>ls.map(l=>l.id===id?{...l,[field]:val}:l)); }
+
+ const totalHT  = lines.reduce((s,l)=>s+(Number(l.puHT)||0)*(Number(l.qty)||1),0);
+ const totalTVA = totalHT*TVA_RATE;
+ const totalTTC = totalHT+totalTVA;
+
+ function buildDevis(){
+   return {
+     number,
+     dateEmission: existingDevis?.dateEmission || new Date().toISOString(),
+     company: quote.company,
+     contactName: quote.contactName,
+     email: quote.email,
+     phone: quote.phone,
+     deviceName: quote.deviceName,
+     lines: lines.map(l=>({label:l.label,piece:l.piece,qty:Number(l.qty)||1,puHT:Number(l.puHT)||0})),
+     totalHT, totalTVA, totalTTC,
+   };
+ }
+
+ async function doPreview(){
+   setGenerating(true);
+   try{
+     const url = await generateDevisPDF(buildDevis(), true);
+     setPreviewUrl(url);
+   }catch(e){ alert("Erreur génération PDF : "+e.message); }
+   setGenerating(false);
+ }
+
+ async function doDownload(){
+   setGenerating(true);
+   try{
+     await generateDevisPDF(buildDevis(), false);
+     onSave(buildDevis());
+   }catch(e){ alert("Erreur : "+e.message); }
+   setGenerating(false);
+ }
+
+ const canGenerate = lines.some(l=>l.label.trim() && Number(l.puHT)>0);
+
+ return(
+   <Modal title={`Établir un devis — ${quote.company}`} onClose={onClose} width={780}>
+     {/* Récap client */}
+     <div style={{background:"var(--g50)",borderRadius:"12px",padding:"14px 18px",marginBottom:"20px",
+       display:"flex",flexWrap:"wrap",gap:"16px",fontSize:"13px"}}>
+       <div><strong>{quote.company}</strong> · {quote.contactName}</div>
+       <div style={{color:"var(--g500)"}}>{quote.email} · {quote.phone}</div>
+       <div style={{color:"var(--bl)",fontWeight:600}}>📱 {quote.deviceName}</div>
+     </div>
+
+     <p style={{fontSize:"12px",fontWeight:700,color:"var(--g500)",textTransform:"uppercase",
+       letterSpacing:".5px",marginBottom:"6px"}}>N° de devis : {number}</p>
+
+     {/* Lignes d'intervention */}
+     <p style={{fontSize:"13px",fontWeight:700,color:"var(--g700)",marginBottom:"12px",marginTop:"16px"}}>
+       Interventions & pièces détachées
+     </p>
+     <div style={{display:"flex",flexDirection:"column",gap:"10px",marginBottom:"16px"}}>
+       {lines.map((l)=>(
+         <div key={l.id} style={{display:"grid",
+           gridTemplateColumns:"1fr 1fr 60px 90px 34px",gap:"8px",alignItems:"center"}}>
+           <input value={l.label} onChange={e=>updLine(l.id,"label",e.target.value)}
+             placeholder="Intervention (ex: Changement écran)"
+             style={{padding:"10px",borderRadius:"8px",border:"1.5px solid var(--g200)",fontSize:"13px",outline:"none"}}/>
+           <input value={l.piece} onChange={e=>updLine(l.id,"piece",e.target.value)}
+             placeholder="Pièce détachée (ex: Écran OLED)"
+             style={{padding:"10px",borderRadius:"8px",border:"1.5px solid var(--g200)",fontSize:"13px",outline:"none"}}/>
+           <input type="number" min="1" value={l.qty} onChange={e=>updLine(l.id,"qty",e.target.value)}
+             placeholder="Qté"
+             style={{padding:"10px",borderRadius:"8px",border:"1.5px solid var(--g200)",fontSize:"13px",outline:"none",textAlign:"center"}}/>
+           <input type="number" min="0" step="0.01" value={l.puHT} onChange={e=>updLine(l.id,"puHT",e.target.value)}
+             placeholder="P.U. HT €"
+             style={{padding:"10px",borderRadius:"8px",border:"1.5px solid var(--g200)",fontSize:"13px",outline:"none",textAlign:"right"}}/>
+           <button onClick={()=>delLine(l.id)} disabled={lines.length===1}
+             style={{background:lines.length===1?"var(--g100)":"var(--rdBg)",border:"none",borderRadius:"8px",
+               padding:"9px",cursor:lines.length===1?"default":"pointer",opacity:lines.length===1?.4:1,
+               color:"var(--rd)",display:"flex",justifyContent:"center"}}><ITrash s={14}/></button>
+         </div>
+       ))}
+     </div>
+     <Btn size="sm" variant="outline" onClick={addLine}><IPlus/> Ajouter une ligne</Btn>
+
+     {/* Totaux */}
+     <div style={{marginTop:"20px",marginLeft:"auto",width:"260px",background:"var(--g50)",
+       borderRadius:"12px",padding:"16px 20px"}}>
+       <div style={{display:"flex",justifyContent:"space-between",fontSize:"14px",marginBottom:"6px",color:"var(--g600)"}}>
+         <span>Total HT</span><strong>{totalHT.toFixed(2)} €</strong>
+       </div>
+       <div style={{display:"flex",justifyContent:"space-between",fontSize:"14px",marginBottom:"10px",color:"var(--g600)"}}>
+         <span>TVA 20 %</span><strong>{totalTVA.toFixed(2)} €</strong>
+       </div>
+       <div style={{display:"flex",justifyContent:"space-between",fontSize:"18px",fontWeight:800,
+         color:"var(--bl)",borderTop:"2px solid var(--g200)",paddingTop:"10px"}}>
+         <span>Total TTC</span><span>{totalTTC.toFixed(2)} €</span>
+       </div>
+     </div>
+
+     {/* Aperçu PDF */}
+     {previewUrl&&(
+       <div style={{marginTop:"20px",border:"1.5px solid var(--g200)",borderRadius:"12px",overflow:"hidden"}}>
+         <div style={{background:"var(--g100)",padding:"8px 14px",fontSize:"12px",fontWeight:700,color:"var(--g600)"}}>
+           Aperçu du devis
+         </div>
+         <iframe src={previewUrl} title="Aperçu devis" style={{width:"100%",height:"420px",border:"none"}}/>
+       </div>
+     )}
+
+     {/* Actions */}
+     <div style={{display:"flex",gap:"10px",marginTop:"24px",flexWrap:"wrap"}}>
+       <Btn variant="secondary" onClick={doPreview} disabled={!canGenerate||generating}>
+         <IEye/> {generating?"Génération…":"Aperçu"}
+       </Btn>
+       <Btn onClick={doDownload} disabled={!canGenerate||generating}>
+         <IFile/> Télécharger le PDF & enregistrer
+       </Btn>
+     </div>
+     {!canGenerate&&(
+       <p style={{fontSize:"12px",color:"var(--g400)",marginTop:"10px"}}>
+         Ajoutez au moins une intervention avec un prix pour générer le devis.
+       </p>
+     )}
+   </Modal>
+ );
+}
+
+/* ═══════════════════════════════════════════
   ADMIN — ONGLET DEVIS PARTENAIRES
 ═══════════════════════════════════════════ */
 function AdminQuotesTab({quotes,setQuotes}){
  const news = quotes.filter(q=>q.status==="new");
  const done = quotes.filter(q=>q.status!=="new");
+ const [devisFor, setDevisFor] = useState(null);
 
  function setStatus(id,status){
    setQuotes(qs=>qs.map(q=>q.id===id?{...q,status}:q));
@@ -1544,22 +1869,27 @@ function AdminQuotesTab({quotes,setQuotes}){
    if(!confirm("Supprimer définitivement cette demande de devis ?"))return;
    setQuotes(qs=>qs.filter(q=>q.id!==id));
  }
+ function saveDevis(quoteId, devis){
+   setQuotes(qs=>qs.map(q=>q.id===quoteId
+     ? {...q, status:"treated", devis}
+     : q));
+   setDevisFor(null);
+ }
 
  const Card = ({q}) => (
    <div style={{background:"#fff",borderRadius:"var(--r20)",padding:"24px 28px",boxShadow:"var(--sh1)",
-     opacity:q.status==="new"?1:.7,
+     opacity:q.status==="new"?1:.85,
      borderLeft:`5px solid ${q.status==="new"?"var(--bl)":q.status==="treated"?"var(--gn)":"var(--g300)"}`}}>
      <div className="req-card-body" style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:"16px"}}>
        <div style={{flex:1,minWidth:"240px"}}>
-         {/* En-tête entreprise */}
          <div style={{display:"flex",alignItems:"center",gap:"10px",flexWrap:"wrap",marginBottom:"10px"}}>
            <span style={{fontWeight:800,fontSize:"19px",color:"var(--g900)"}}>🏢 {q.company}</span>
            <span className={`tag ${q.status==="new"?"tb":q.status==="treated"?"tg":"tr"}`}>
-             {q.status==="new"?"🆕 Nouveau":q.status==="treated"?"✅ Traité":"🗄️ Archivé"}
+             {q.status==="new"?"🆕 Nouveau":q.status==="treated"?"✅ Devis établi":"🗄️ Archivé"}
            </span>
+           {q.devis&&<span className="tag tb">📄 {q.devis.number}</span>}
          </div>
 
-         {/* Coordonnées */}
          <div style={{display:"flex",flexDirection:"column",gap:"5px",marginBottom:"14px",
            background:"var(--g50)",borderRadius:"12px",padding:"14px 16px"}}>
            <div style={{fontSize:"14px",color:"var(--g700)",display:"flex",alignItems:"center",gap:"8px"}}>
@@ -1573,7 +1903,6 @@ function AdminQuotesTab({quotes,setQuotes}){
            </div>
          </div>
 
-         {/* Appareil + interventions */}
          <div style={{marginBottom:"10px"}}>
            <div style={{fontSize:"15px",fontWeight:700,color:"var(--g900)",marginBottom:"6px"}}>
              📱 {q.deviceName}
@@ -1595,21 +1924,37 @@ function AdminQuotesTab({quotes,setQuotes}){
            </div>
          )}
 
+         {q.devis&&(
+           <div style={{marginTop:"12px",background:"#ecfdf5",borderRadius:"10px",padding:"12px 16px",
+             border:"1px solid #a7f3d0"}}>
+             <div style={{fontSize:"13px",fontWeight:700,color:"#065f46",marginBottom:"4px"}}>
+               📄 Devis {q.devis.number} — {q.devis.totalTTC.toFixed(2)} € TTC
+             </div>
+             <button onClick={async()=>{try{await generateDevisPDF(q.devis,false);}catch(e){alert("Erreur : "+e.message);}}}
+               style={{background:"none",border:"none",color:"#059669",fontWeight:700,fontSize:"13px",
+                 cursor:"pointer",padding:0,textDecoration:"underline"}}>
+               ⬇ Retélécharger le PDF
+             </button>
+           </div>
+         )}
+
          <div style={{color:"var(--g400)",fontSize:"13px",marginTop:"10px"}}>
            {new Date(q.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"})}
          </div>
        </div>
 
-       {/* Actions */}
        <div className="req-card-actions" style={{display:"flex",flexDirection:"column",gap:"8px",flexShrink:0}}>
-         {q.status==="new"&&(
-           <Btn size="md" variant="success" onClick={()=>setStatus(q.id,"treated")}>
-             <ICheck/> Marquer traité
-           </Btn>
-         )}
+         <Btn size="md" onClick={()=>setDevisFor(q)}>
+           <IFile/> {q.devis?"Modifier le devis":"Établir un devis"}
+         </Btn>
          {q.status==="treated"&&(
            <Btn size="md" variant="secondary" onClick={()=>setStatus(q.id,"archived")}>
              🗄️ Archiver
+           </Btn>
+         )}
+         {q.status==="archived"&&(
+           <Btn size="md" variant="secondary" onClick={()=>setStatus(q.id,"treated")}>
+             ↩ Désarchiver
            </Btn>
          )}
          <Btn size="md" variant="danger" onClick={()=>remove(q.id)}><ITrash/> Supprimer</Btn>
@@ -1646,6 +1991,15 @@ function AdminQuotesTab({quotes,setQuotes}){
          <p style={{fontWeight:600,fontSize:"18px"}}>Aucune demande de devis</p>
          <p style={{fontSize:"14px",marginTop:"6px"}}>Les demandes des partenaires apparaîtront ici.</p>
        </div>
+     )}
+
+     {devisFor&&(
+       <DevisEditor
+         quote={devisFor}
+         existingDevis={devisFor.devis}
+         onClose={()=>setDevisFor(null)}
+         onSave={(devis)=>saveDevis(devisFor.id, devis)}
+       />
      )}
    </div>
  );
