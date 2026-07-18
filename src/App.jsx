@@ -591,6 +591,9 @@ input,select,textarea,button{font-family:inherit}
  .admin-model-actions{flex-direction:row !important;justify-content:flex-end}
  .req-card-body{flex-direction:column !important}
  .req-card-actions{flex-direction:row !important;justify-content:flex-end;flex-wrap:wrap}
+ .clients-layout{flex-direction:column !important}
+ .clients-list{width:100% !important;max-height:280px;border-right:none !important;border-bottom:1px solid var(--g200)}
+ .clients-detail{padding:20px 16px !important}
  .role-grid{flex-direction:column !important;align-items:center !important}
  .role-card{width:100% !important;max-width:360px !important}
 }
@@ -2006,6 +2009,228 @@ function AdminQuotesTab({quotes,setQuotes}){
 }
 
 /* ═══════════════════════════════════════════
+  ADMIN — FICHIER CLIENTS PARTENAIRES
+═══════════════════════════════════════════ */
+function AdminClientsTab({quotes,setQuotes}){
+ const [search, setSearch] = useState("");
+ const [selected, setSelected] = useState(null);
+ const [editMode, setEditMode] = useState(false);
+ const [editForm, setEditForm] = useState({});
+
+ /* Regrouper les demandes par client (clé = email en minuscule, sinon entreprise) */
+ const clients = (()=>{
+   const map = new Map();
+   quotes.forEach(q=>{
+     const key = (q.email||q.company||"").trim().toLowerCase();
+     if(!key) return;
+     if(!map.has(key)){
+       map.set(key,{
+         key, company:q.company, contactName:q.contactName,
+         email:q.email, phone:q.phone, demandes:[],
+       });
+     }
+     const c = map.get(key);
+     c.demandes.push(q);
+     // Garde les coordonnées les plus récentes
+     if(new Date(q.date) >= new Date(c.demandes[0].date)){
+       c.company=q.company; c.contactName=q.contactName; c.email=q.email; c.phone=q.phone;
+     }
+   });
+   return [...map.values()].sort((a,b)=>a.company.localeCompare(b.company));
+ })();
+
+ const filtered = clients.filter(c=>{
+   const t = search.toLowerCase();
+   return !t || c.company.toLowerCase().includes(t) || c.contactName.toLowerCase().includes(t)
+     || (c.email||"").toLowerCase().includes(t) || (c.phone||"").includes(t);
+ });
+
+ const sel = selected ? clients.find(c=>c.key===selected) : null;
+ const devisList = sel ? sel.demandes.filter(d=>d.devis).map(d=>d.devis) : [];
+
+ function startEdit(){
+   setEditForm({company:sel.company,contactName:sel.contactName,email:sel.email,phone:sel.phone});
+   setEditMode(true);
+ }
+ function saveEdit(){
+   // Applique les nouvelles coordonnées à toutes les demandes de ce client
+   setQuotes(qs=>qs.map(q=>{
+     const key=(q.email||q.company||"").trim().toLowerCase();
+     return key===sel.key
+       ? {...q, company:editForm.company, contactName:editForm.contactName,
+           email:editForm.email, phone:editForm.phone}
+       : q;
+   }));
+   setEditMode(false);
+   // Met à jour la clé sélectionnée si l'email change
+   setSelected((editForm.email||editForm.company||"").trim().toLowerCase());
+ }
+
+ return(
+   <div className="clients-layout" style={{display:"flex",height:"100%",overflow:"hidden"}}>
+     {/* Liste clients */}
+     <div style={{width:"340px",borderRight:"1px solid var(--g200)",background:"#fff",
+       display:"flex",flexDirection:"column",flexShrink:0}} className="clients-list">
+       <div style={{padding:"20px 20px 14px",borderBottom:"1px solid var(--g100)"}}>
+         <div style={{position:"relative",marginBottom:"6px"}}>
+           <span style={{position:"absolute",left:"12px",top:"50%",transform:"translateY(-50%)",
+             color:"var(--g400)",display:"flex"}}><ISearch s={16}/></span>
+           <input value={search} onChange={e=>setSearch(e.target.value)}
+             placeholder="Rechercher un partenaire…"
+             style={{width:"100%",padding:"11px 14px 11px 38px",borderRadius:"10px",
+               border:"1.5px solid var(--g200)",fontSize:"14px",outline:"none",boxSizing:"border-box"}}/>
+         </div>
+         <p style={{fontSize:"12px",color:"var(--g400)",fontWeight:500}}>
+           {filtered.length} partenaire{filtered.length>1?"s":""}
+         </p>
+       </div>
+       <div style={{overflowY:"auto",flex:1}}>
+         {filtered.length===0&&(
+           <div style={{padding:"40px 20px",textAlign:"center",color:"var(--g400)",fontSize:"14px"}}>
+             Aucun partenaire trouvé
+           </div>
+         )}
+         {filtered.map(c=>{
+           const nbDevis = c.demandes.filter(d=>d.devis).length;
+           return(
+             <div key={c.key} onClick={()=>{setSelected(c.key);setEditMode(false);}}
+               style={{padding:"14px 18px",cursor:"pointer",borderBottom:"1px solid var(--g100)",
+                 background:selected===c.key?"var(--bl3)":"transparent",
+                 borderLeft:selected===c.key?"3px solid var(--bl)":"3px solid transparent"}}>
+               <div style={{fontWeight:700,fontSize:"15px",color:selected===c.key?"var(--bl)":"var(--g900)",
+                 overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.company}</div>
+               <div style={{fontSize:"13px",color:"var(--g500)",overflow:"hidden",textOverflow:"ellipsis",
+                 whiteSpace:"nowrap"}}>{c.contactName}</div>
+               <div style={{display:"flex",gap:"6px",marginTop:"6px"}}>
+                 <span style={{fontSize:"11px",background:"var(--g100)",color:"var(--g600)",
+                   borderRadius:"20px",padding:"2px 8px",fontWeight:600}}>{c.demandes.length} demande{c.demandes.length>1?"s":""}</span>
+                 {nbDevis>0&&<span style={{fontSize:"11px",background:"#d1fae5",color:"#065f46",
+                   borderRadius:"20px",padding:"2px 8px",fontWeight:600}}>{nbDevis} devis</span>}
+               </div>
+             </div>
+           );
+         })}
+       </div>
+     </div>
+
+     {/* Fiche client */}
+     <div style={{flex:1,overflowY:"auto",padding:"36px 40px"}} className="clients-detail">
+       {!sel ? (
+         <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",
+           height:"100%",color:"var(--g400)",gap:"12px"}}>
+           <div style={{fontSize:"56px"}}>📇</div>
+           <p style={{fontWeight:600,fontSize:"18px",color:"var(--g500)"}}>Fichier clients partenaires</p>
+           <p style={{fontSize:"14px"}}>Sélectionnez un partenaire pour voir sa fiche</p>
+         </div>
+       ) : (
+         <>
+           {/* En-tête fiche */}
+           <div style={{background:"#fff",borderRadius:"20px",padding:"28px 32px",boxShadow:"var(--sh1)",
+             marginBottom:"20px"}}>
+             {!editMode ? (
+               <>
+                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:"12px"}}>
+                   <div>
+                     <h2 style={{fontSize:"26px",fontWeight:800,color:"var(--g900)",marginBottom:"4px"}}>
+                       🏢 {sel.company}
+                     </h2>
+                     <p style={{fontSize:"15px",color:"var(--g500)"}}>{sel.contactName}</p>
+                   </div>
+                   <Btn variant="secondary" onClick={startEdit}><IEdit/> Éditer la fiche</Btn>
+                 </div>
+                 <div style={{display:"flex",flexWrap:"wrap",gap:"20px",marginTop:"18px"}}>
+                   <a href={`mailto:${sel.email}`} style={{fontSize:"14px",color:"var(--bl)",
+                     textDecoration:"none",display:"flex",alignItems:"center",gap:"8px"}}>
+                     <IMail s={16}/> {sel.email}
+                   </a>
+                   <a href={`tel:${sel.phone}`} style={{fontSize:"14px",color:"var(--bl)",
+                     textDecoration:"none",display:"flex",alignItems:"center",gap:"8px"}}>
+                     <IPhone s={16}/> {sel.phone}
+                   </a>
+                 </div>
+               </>
+             ) : (
+               <div style={{maxWidth:"480px"}}>
+                 <h3 style={{fontSize:"18px",fontWeight:800,marginBottom:"18px"}}>Éditer la fiche</h3>
+                 <Field label="Entreprise" value={editForm.company} onChange={e=>setEditForm(f=>({...f,company:e.target.value}))}/>
+                 <Field label="Contact" value={editForm.contactName} onChange={e=>setEditForm(f=>({...f,contactName:e.target.value}))}/>
+                 <Field label="Email" value={editForm.email} onChange={e=>setEditForm(f=>({...f,email:e.target.value}))}/>
+                 <Field label="Téléphone" value={editForm.phone} onChange={e=>setEditForm(f=>({...f,phone:e.target.value}))}/>
+                 <div style={{display:"flex",gap:"10px",marginTop:"8px"}}>
+                   <Btn onClick={saveEdit}><ICheck/> Enregistrer</Btn>
+                   <Btn variant="ghost" onClick={()=>setEditMode(false)}>Annuler</Btn>
+                 </div>
+               </div>
+             )}
+           </div>
+
+           {/* Statistiques */}
+           <div style={{display:"flex",gap:"14px",marginBottom:"24px",flexWrap:"wrap"}}>
+             {[
+               {label:"Demandes",     val:sel.demandes.length,                                  color:"var(--bl)"},
+               {label:"Devis établis", val:devisList.length,                                     color:"#059669"},
+               {label:"Total devisé",  val:devisList.reduce((s,d)=>s+(d.totalTTC||0),0).toFixed(2)+" €", color:"#7c3aed"},
+             ].map((s,i)=>(
+               <div key={i} style={{flex:1,minWidth:"150px",background:"#fff",borderRadius:"16px",
+                 padding:"20px 24px",boxShadow:"var(--sh1)"}}>
+                 <div style={{fontSize:"28px",fontWeight:900,color:s.color,letterSpacing:"-1px"}}>{s.val}</div>
+                 <div style={{fontSize:"13px",color:"var(--g500)",fontWeight:600,marginTop:"2px"}}>{s.label}</div>
+               </div>
+             ))}
+           </div>
+
+           {/* Historique demandes & devis */}
+           <h3 style={{fontSize:"16px",fontWeight:800,color:"var(--g800)",marginBottom:"14px"}}>
+             Historique
+           </h3>
+           <div style={{display:"flex",flexDirection:"column",gap:"12px"}}>
+             {[...sel.demandes].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(d=>(
+               <div key={d.id} style={{background:"#fff",borderRadius:"14px",padding:"18px 22px",
+                 boxShadow:"var(--sh1)",borderLeft:`4px solid ${d.devis?"#059669":"var(--g300)"}`}}>
+                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:"10px"}}>
+                   <div style={{flex:1,minWidth:"200px"}}>
+                     <div style={{fontSize:"15px",fontWeight:700,color:"var(--g900)",marginBottom:"6px"}}>
+                       📱 {d.deviceName}
+                     </div>
+                     <div style={{display:"flex",flexWrap:"wrap",gap:"5px",marginBottom:"6px"}}>
+                       {d.repairs.map((r,i)=>(
+                         <span key={i} style={{fontSize:"12px",background:"var(--bl3)",color:"var(--bl2)",
+                           borderRadius:"6px",padding:"2px 8px",fontWeight:600}}>{r}</span>
+                       ))}
+                     </div>
+                     <div style={{fontSize:"12px",color:"var(--g400)"}}>
+                       {new Date(d.date).toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})}
+                     </div>
+                   </div>
+                   {d.devis ? (
+                     <div style={{textAlign:"right"}}>
+                       <div style={{fontSize:"13px",fontWeight:700,color:"#059669",marginBottom:"4px"}}>
+                         📄 {d.devis.number}
+                       </div>
+                       <div style={{fontSize:"16px",fontWeight:800,color:"var(--g900)",marginBottom:"6px"}}>
+                         {d.devis.totalTTC.toFixed(2)} € TTC
+                       </div>
+                       <button onClick={async()=>{try{await generateDevisPDF(d.devis,false);}catch(e){alert("Erreur : "+e.message);}}}
+                         style={{background:"none",border:"none",color:"#059669",fontWeight:700,
+                           fontSize:"12px",cursor:"pointer",textDecoration:"underline",padding:0}}>
+                         ⬇ Télécharger PDF
+                       </button>
+                     </div>
+                   ) : (
+                     <span className="tag to" style={{alignSelf:"flex-start"}}>Sans devis</span>
+                   )}
+                 </div>
+               </div>
+             ))}
+           </div>
+         </>
+       )}
+     </div>
+   </div>
+ );
+}
+
+/* ═══════════════════════════════════════════
   ADMIN DASHBOARD
 ═══════════════════════════════════════════ */
 function AdminDashboard({brands,setBrands,requests,setRequests,quotes,setQuotes,siteName,setSiteName,repairTypes,setRepairTypes,onExit}){
@@ -2016,6 +2241,7 @@ function AdminDashboard({brands,setBrands,requests,setRequests,quotes,setQuotes,
  const tabs = [
    {id:"brands",   label:"Marques & Modèles", icon:<IGrid s={20}/>,   badge:0},
    {id:"quotes",   label:"Devis Partenaires",  icon:<IBrief s={20}/>,  badge:newQuotesCount},
+   {id:"clients",  label:"Fichier Clients",    icon:<IUser s={20}/>,   badge:0},
    {id:"requests", label:"Demandes Vendeurs",  icon:<IBell s={20}/>,   badge:pendingCount},
    {id:"settings", label:"Paramètres",         icon:<ISettings s={20}/>,badge:0},
  ];
@@ -2023,6 +2249,7 @@ function AdminDashboard({brands,setBrands,requests,setRequests,quotes,setQuotes,
  const tabTitles = {
    brands:   {title:"Marques & Modèles",  sub:"Gérez vos marques et les tarifs de réparation"},
    quotes:   {title:"Devis Partenaires",  sub:"Demandes de devis envoyées par les partenaires"},
+   clients:  {title:"Fichier Clients",    sub:"Base des partenaires enregistrés et leurs devis"},
    requests: {title:"Demandes Vendeurs",  sub:"Suggestions de prix envoyées par les vendeurs"},
    settings: {title:"Paramètres",         sub:"Configuration générale du site"},
  };
@@ -2091,6 +2318,7 @@ function AdminDashboard({brands,setBrands,requests,setRequests,quotes,setQuotes,
        {/* Contenu onglet */}
        {tab==="brands"   &&<AdminBrandsTab brands={brands} setBrands={setBrands}/>}
        {tab==="quotes"   &&<AdminQuotesTab quotes={quotes} setQuotes={setQuotes}/>}
+       {tab==="clients"  &&<AdminClientsTab quotes={quotes} setQuotes={setQuotes}/>}
        {tab==="requests" &&<AdminRequestsTab requests={requests} setRequests={setRequests} setBrands={setBrands}/>}
        {tab==="settings" &&<AdminSettingsTab siteName={siteName} setSiteName={setSiteName} repairTypes={repairTypes} setRepairTypes={setRepairTypes}/>}
      </main>
@@ -2101,8 +2329,8 @@ function AdminDashboard({brands,setBrands,requests,setRequests,quotes,setQuotes,
          {[
            {id:"brands",   label:"Modèles",  icon:<IGrid s={22}/>},
            {id:"quotes",   label:"Devis",    icon:<IBrief s={22}/>, badge:newQuotesCount},
+           {id:"clients",  label:"Clients",  icon:<IUser s={22}/>},
            {id:"requests", label:"Demandes", icon:<IBell s={22}/>, badge:pendingCount},
-           {id:"settings", label:"Réglages", icon:<ISettings s={22}/>},
            {id:"exit",     label:"Accueil",  icon:<IBack s={22}/>},
          ].map(item=>(
            <button key={item.id}
